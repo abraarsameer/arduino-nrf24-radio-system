@@ -31,7 +31,7 @@ class AnalogChannel {
     bool invert = false;
 };
 
-void printf(int x) {
+void printfLCD(int x) {
   if (millis() - lastMillisUpdate > lcdUpdateInterval) {
     lastMillisUpdate = millis();
     lcd.setCursor(0, 1);
@@ -41,7 +41,7 @@ void printf(int x) {
   }
 }
 
-void printf(const __FlashStringHelper* c) {
+void printfLCD(const __FlashStringHelper* c) {
   lcd.clear();
   lcd.home();
   lcd.print(c);
@@ -74,7 +74,7 @@ void AnalogChannel::load() {
   if (EEPROM.read(startAddress) != pin) {
 
 
-    printf(F("load: ID error"));
+    printfLCD(F("load: ID error"));
     return;
   }
 
@@ -124,27 +124,27 @@ byte AnalogChannel::read() {
 }
 
 void AnalogChannel::calibrate() {
-  printf(F("Move to low end"));
+  printfLCD(F("Move to low end"));
   while (1) {
     int x = analogReadAvg(pin);
-    printf(x);
+    printfLCD(x);
 
     if (getButtonState() != NONE) {
       lowEnd = x;
       break;
     }
   }
-  printf(F("Move to high end"));
+  printfLCD(F("Move to high end"));
   while (1) {
     int x = analogReadAvg(pin);
-    printf(x);
+    printfLCD(x);
     
     if (getButtonState() != NONE) {
       highEnd = x;
       break;
     }
   }
-  printf(F("Done"));
+  printfLCD(F("Done"));
   delay(500);
   if (lowEnd >= highEnd) {
     byte val = lowEnd;
