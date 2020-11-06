@@ -44,6 +44,7 @@ void setup() {
     channel[i].load();
   }
 
+
   //Radio initialization code
   radio.begin();
   radio.setDataRate(RF24_250KBPS);
@@ -69,6 +70,7 @@ void loop() {
   radio.write(&txData, sizeof(txData));
   sentPackets++;
 
+ 
   while (radio.isAckPayloadAvailable()) {
     radio.read(&rxData, sizeof(rxData));
     receivedPackets = rxData.pps;
@@ -79,14 +81,14 @@ void loop() {
     receiverVoltage = (rxData.batt/255.0)*5.0;
     packetSucccessRate = sentPackets > 0 ? (receivedPackets * 100) / sentPackets : 0;
 
+#ifdef SERIAL_DEBUG
+    printf("Sent = %d, Received = %d, Acked = %d\n", sentPackets, receivedPackets, ackedPackets);
+#endif
+
     sentPackets = 0;
     ackedPackets = 0;
     lastMillis = millis();
   }
-
-#ifdef SERIAL_DEBUG
-  printf("Sent = %d, Received = %d, Acked = %d", sentPackets, receivedPackets, ackedPackets);
-#endif
 
   updateMenu();
 }
