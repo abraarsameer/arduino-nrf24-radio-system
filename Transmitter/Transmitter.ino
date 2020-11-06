@@ -13,10 +13,12 @@
 #define CS_PIN 10
 
 RF24 radio(CE_PIN, CS_PIN);
-const uint64_t pipe = 0xABCDABCD71LL;
+const uint64_t pipe = 0xABCDABCD71LL; 
+
+unsigned int sentPackets, receivedPackets, ackedPackets;
 
 struct ChannelData {
-  byte channels[4];
+  byte channel[4];
 } txData;
 
 struct TelemetryData {
@@ -58,12 +60,33 @@ void setup() {
 }
 
 void loop() {
+  static unsigned long lastMillis = millis();
 
-  for (byte i = 0; i < 4; i++){
-    channel[i].update();
+  for (byte i = 0; i < 4; i++) {
+    txData.channel[i] = channel[i].update();
   }
 
+  radio.write(&txData, sizeof(txData));
+  sentPackets++;
 
+  while (radio.isAckPayloadAvailable()) {
+    radio.read(&rxData, sizeof(rxData));
+    receivedPackets = rxData.pps;
+    ackedPackets++;
+  }
   
+  if(millis() - lastMillis > 1000) {
+    receiverVoltage = (rxData.batt/255.0)*5.0;
+    packetSucccessRate = sentPackets > 0 ? (receivedPackets * 100) / sentPackets : 0;
+
+    sentPackets = 0;
+    ackedPackets = 0;
+    lastMillis = millis();
+  }
+
+#ifdef SERIAL_DEBUG
+  printf("Sent = %d, Received = %d, Acked = %d", sentPackets, receivedPackets, ackedPackets);
+#endif
+
   updateMenu();
 }
