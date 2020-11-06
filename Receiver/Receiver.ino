@@ -19,8 +19,10 @@ Servo channel[4];
 RF24 radio(CE_PIN, CS_PIN);
 const uint64_t pipe = 0xABCDABCD71LL;
 
+unsigned int receivedPackets;
+
 void setup() {
-    for(byte i = 0; i < 3; i++) {
+    for(byte i = 0; i < 4; i++) {
         channel[i].attach(chPins[i]);
     }
 
@@ -32,10 +34,28 @@ void setup() {
     radio.openReadingPipe(1, pipe);
     radio.startListening();
 
-    memset(&txData, 0, sizeof(txData));
+    memset(&txData, 90, sizeof(txData));
     memset(&rxData, 0, sizeof(rxData));
 }
 
 void loop() {
-    
+    static unsigned long lastMillis = millis();
+
+    while (radio.available()) {
+        radio.writeAckPayload(1, &rxData, sizeof(rxData));
+        radio.read(&txData, sizeof(txData));
+        receivedPackets++;
+    }
+
+    if (millis() - lastMillis > 1000) {
+        rxData.batt = 0;
+        rxData.pps = receivedPackets;
+
+        receivedPackets = 0;
+        lastMillis = millis();
+    }
+
+    for (byte i = 0; i < 4; i++) {
+        channel[i].write(txData.channel[i]);
+    }
 }
