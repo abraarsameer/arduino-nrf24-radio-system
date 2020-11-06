@@ -49,9 +49,8 @@ void setup() {
   radio.begin();
   radio.setDataRate(RF24_250KBPS);
   radio.setPayloadSize(sizeof(txData));
-  radio.setAutoAck(true);
   radio.enableAckPayload(); //Enable payload with Ack bit
-  //radio.setRetries(0, 15);
+  radio.setRetries(2, 1);
   radio.openWritingPipe(pipe);
   
   memset(&txData, 0, sizeof(txData));
@@ -79,7 +78,7 @@ void loop() {
   
   if(millis() - lastMillis > 1000) {
     receiverVoltage = (rxData.batt/255.0)*5.0;
-    packetSucccessRate = sentPackets > 0 ? (receivedPackets * 100) / sentPackets : 0;
+    packetSucccessRate = sentPackets > 0 ? (ackedPackets * 100) / sentPackets : 0;
 
 #ifdef SERIAL_DEBUG
     printf("Sent = %d, Received = %d, Acked = %d\n", sentPackets, receivedPackets, ackedPackets);

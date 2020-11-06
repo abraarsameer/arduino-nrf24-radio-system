@@ -615,7 +615,7 @@ void displayBackground() {
     lcd.print("V");
   }
 
-  if (millis() - lastMillisUpdate > lcdUpdateInterval) {
+  if (millis() - lastMillisUpdate > 1000) {
     lastMillisUpdate = millis();
     lcd.setCursor(2, 0);
     printInt(packetSucccessRate, 3);
