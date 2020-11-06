@@ -60,7 +60,7 @@ bool backgroundVisible;
 
 AnalogChannel channel[4];
 
-byte packetLoss = 100;
+byte packetSucccessRate;
 float transmitterVoltage = 6.50;
 float receiverVoltage = 10.00;
 //
@@ -618,7 +618,7 @@ void displayBackground() {
   if (millis() - lastMillisUpdate > lcdUpdateInterval) {
     lastMillisUpdate = millis();
     lcd.setCursor(2, 0);
-    printInt(100 - packetLoss, 3);
+    printInt(packetSucccessRate, 3);
     lcd.setCursor(11, 0);
     printFloat(transmitterVoltage);
     lcd.setCursor(11, 1);
