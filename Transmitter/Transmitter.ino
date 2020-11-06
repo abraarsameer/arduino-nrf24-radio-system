@@ -16,7 +16,7 @@ RF24 radio(CE_PIN, CS_PIN);
 const uint64_t pipe = 0xABCDABCD71LL;
 
 struct ChannelData {
-  channels[4];
+  byte channels[4];
 } txData;
 
 struct TelemetryData {
@@ -51,8 +51,8 @@ void setup() {
   //radio.setRetries(0, 15);
   radio.openWritingPipe(pipe);
   
-  memset(txData, 0, sizeof(txData));
-  memset(rxData, 0, sizeof(rxData));
+  memset(&txData, 0, sizeof(txData));
+  memset(&rxData, 0, sizeof(rxData));
   
   initMenu();
 }
@@ -62,6 +62,8 @@ void loop() {
   for (byte i = 0; i < 4; i++){
     channel[i].update();
   }
+
+
   
   updateMenu();
 }
