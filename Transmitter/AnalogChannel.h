@@ -3,18 +3,24 @@
 
 #define filterWeight 0.2
 
-#define blockSize 6
-#define configInvertBit 0
+#define blockSize sizeof(ChannelConfig)
 
 #define SERVO 1
 #define THROTTLE 0
+
+typedef struct {
+  byte pin;
+  byte lowEnd, highEnd;
+  byte trim, range;
+  bool invert : 1;
+} ChannelConfig;
 
 class AnalogChannel {
   private:
     Filter filter;
     byte output;
     byte pin;
-    byte lowEnd, highEnd;
+    byte lowEnd = 0, highEnd = 255;
     byte startAddress;
     byte type;
 
@@ -26,8 +32,8 @@ class AnalogChannel {
     int update();
     byte read();
     void calibrate();
-    byte range;
-    int8_t trim;
+    byte range = 90;
+    int8_t trim = 0;
     bool invert = false;
 };
 
@@ -70,34 +76,28 @@ void AnalogChannel::begin(byte pin, byte startAddress, byte type) {
 }
 
 void AnalogChannel::load() {
+  ChannelConfig config;
+  EEPROM.get(startAddress, config);
 
-  if (EEPROM.read(startAddress) != pin) {
+  if (config.pin != pin) return;
 
-
-    printfLCD(F("load: ID error"));
-    return;
-  }
-
-
-  byte config = EEPROM.read(startAddress + 1);
-  invert = bitRead(config, configInvertBit);
-
-  lowEnd = EEPROM.read(startAddress + 2);
-  highEnd = EEPROM.read(startAddress + 3);
-  trim = EEPROM.read(startAddress + 4);
-  range = EEPROM.read(startAddress + 5);
+  lowEnd = config.lowEnd;
+  highEnd = config.highEnd;
+  trim = config.trim;
+  range = config.range;
+  invert = config.invert;
 }
 
 void AnalogChannel::save() {
-  byte config = 0;
-  bitWrite(config, configInvertBit, invert);
+  ChannelConfig config;
+  config.pin = pin;
+  config.lowEnd = lowEnd;
+  config.highEnd = highEnd;
+  config.trim = trim;
+  config.range = range;
+  config.invert = invert;
 
-  EEPROM.update(startAddress, pin);
-  EEPROM.update(startAddress + 1, config);
-  EEPROM.update(startAddress + 2, lowEnd);
-  EEPROM.update(startAddress + 3, highEnd);
-  EEPROM.update(startAddress + 4, trim);
-  EEPROM.update(startAddress + 5, range);
+  EEPROM.put(startAddress, config);
 }
 
 int AnalogChannel::update() {

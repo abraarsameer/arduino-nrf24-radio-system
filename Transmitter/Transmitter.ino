@@ -47,7 +47,6 @@ void setup() {
     channel[i].load();
   }
 
-
   //Radio initialization code
   radio.begin();
   radio.setDataRate(RF24_250KBPS);
