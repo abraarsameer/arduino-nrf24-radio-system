@@ -15,7 +15,6 @@
 RF24 radio(CE_PIN, CS_PIN);
 const uint64_t pipe = 0xABCDABCD71LL; 
 
-unsigned int sentPackets, receivedPackets, ackedPackets;
 
 struct ChannelData {
   byte channel[4];
@@ -52,7 +51,7 @@ void setup() {
   radio.setDataRate(RF24_250KBPS);
   radio.setPayloadSize(sizeof(txData));
   radio.enableAckPayload(); //Enable payload with Ack bit
-  radio.setRetries(2, 1);
+  radio.setRetries(2, 0);
   radio.openWritingPipe(pipe);
   
   memset(&txData, 0, sizeof(txData));
@@ -61,6 +60,7 @@ void setup() {
 
 void loop() {
   static unsigned long lastMillis = millis();
+  static unsigned int sentPackets, receivedPackets, ackedPackets;
 
   for (byte i = 0; i < 4; i++) {
     txData.channel[i] = channel[i].update();
@@ -83,8 +83,11 @@ void loop() {
 #ifdef SERIAL_DEBUG
     printf("Sent = %d, Received = %d, Acked = %d\n", sentPackets, receivedPackets, ackedPackets);
 #endif
-
+    sentPacketsDisplay = sentPackets;
+    receivedPacketsDisplay = receivedPackets;
+    ackedPacketsDisplay = ackedPackets;
     sentPackets = 0;
+    receivedPackets = 0;
     ackedPackets = 0;
     lastMillis = millis();
   }

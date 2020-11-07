@@ -26,8 +26,9 @@ pchar Trim[] = "Trim";
 pchar Range[] = "Range";
 pchar Invert[] = "Invert";
 pchar Save[] = "Configuration";
+pchar RadioStats[] = "Radio Stats";
 
-fstring mainMenu[] = {f(Display), f(Trim), f(Range), f(Invert), f(Save)};
+fstring mainMenu[] = {f(Display), f(Trim), f(Range), f(Invert), f(Save), f(RadioStats)};
 fstring backgroundMenu[] = {f(Display)}; //Dummy, only serves to provide an address for identification
 
 pchar Ch1[] = "Ch 1";
@@ -45,8 +46,10 @@ pchar calibrateMsg[] = "Calibrate";
 pchar clearEEPROMMsg[] = "Clear EEPROM";
 fstring saveMenu[] = {f(saveMsg), f(calibrateMsg), f(clearEEPROMMsg)};
 
-fstring* subMenus[] = {displayMenu, trimMenu, rangeMenu, invertMenu, saveMenu};
-byte subMenuSizes[] = {4, 4, 4, 4, 3};
+fstring radioStatsMenu[] = {f(Display)}; //Dummy
+
+fstring* subMenus[] = {displayMenu, trimMenu, rangeMenu, invertMenu, saveMenu, radioStatsMenu};
+byte subMenuSizes[] = {4, 4, 4, 4, 3, 0};
 
 /*--------------------------------*/
 
@@ -56,13 +59,13 @@ byte currentPos;
 byte currentMenuSize;
 byte lastScreen = 255;
 bool optionSelected;
-bool backgroundVisible;
+bool backgroundVisible, radioStatsMenuVisible;
 
 AnalogChannel channel[4];
 
 byte packetSucccessRate;
-float transmitterVoltage;
-float receiverVoltage;
+float transmitterVoltage, receiverVoltage;
+unsigned int sentPacketsDisplay, receivedPacketsDisplay, ackedPacketsDisplay;
 //
 
 //Functions
@@ -568,6 +571,15 @@ void saveMenuCallback() {
   }
 }
 
+void radioStatsMenuCallback() {
+  byte buttonState = getButtonState();
+
+  if (buttonState != NONE) {
+    switchMenu(mainMenu, len(mainMenu));
+    radioStatsMenuVisible = false;
+  }
+}
+
 void updateEntries() {
   byte currentScreen = currentPos / 2;
 
@@ -640,9 +652,30 @@ void displayBackground() {
   }
 }
 
+void displayRadioStats() {
+  if (!radioStatsMenuVisible) {
+    radioStatsMenuVisible = true;
+    lcd.clear();
+  }
+  if(millis() - lastMillisUpdate > 1000) {
+    lastMillisUpdate = millis();
+    lcd.setCursor(0, 0);
+    lcd.print("S ");
+    printInt(sentPacketsDisplay, 3);
+    lcd.setCursor(7, 0);
+    lcd.print("R ");
+    printInt(receivedPacketsDisplay, 3);
+    lcd.setCursor(0, 1);
+    lcd.print("A ");
+    printInt(ackedPacketsDisplay, 3);
+  }
+}
+
 void updateMenu() {
   if (currentMenu == backgroundMenu) {
     displayBackground();
+  } else if (currentMenu == radioStatsMenu) {
+    displayRadioStats();
   } else {
     updateEntries();
   }
@@ -661,5 +694,7 @@ void updateMenu() {
     invertMenuCallback();
   } else if (currentMenu == saveMenu) {
     saveMenuCallback();
+  } else if (currentMenu == radioStatsMenu) {
+    radioStatsMenuCallback();
   }
 }
