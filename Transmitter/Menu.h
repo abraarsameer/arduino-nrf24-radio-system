@@ -61,8 +61,8 @@ bool backgroundVisible;
 AnalogChannel channel[4];
 
 byte packetSucccessRate;
-float transmitterVoltage = 6.50;
-float receiverVoltage = 10.00;
+float transmitterVoltage;
+float receiverVoltage;
 //
 
 //Functions
