@@ -55,7 +55,7 @@ byte subMenuSizes[] = {4, 4, 4, 4, 3, 0};
 
 //Variables
 fstring* currentMenu = backgroundMenu;
-byte currentPos;
+byte currentPos, lastPos = 255;
 byte currentMenuSize;
 byte lastScreen = 255;
 bool optionSelected;
@@ -185,8 +185,8 @@ void switchMenu(fstring* menu, byte size) {
   currentMenu = menu;
   currentMenuSize = size;
   lastScreen = 255;
+  lastPos = 255;
   optionSelected = false;
-
   currentPos = 0;
 }
 
@@ -596,16 +596,12 @@ void updateEntries() {
     lastScreen = currentScreen;
   }
 
-  if ((currentPos + 2) % 2 == 0) {
-    lcd.setCursor(0, 0);
-    lcd.write(rightArrow);
-    lcd.setCursor(0, 1);
+  if (lastPos != currentPos) {
+    lastPos = currentPos;
+    lcd.setCursor(0, (currentPos + 2) % 2);
+    lcd.write(rightArrow); 
+    lcd.setCursor(0, (currentPos + 1) % 2);
     lcd.print(" ");
-  } else {
-    lcd.setCursor(0, 0);
-    lcd.print(" ");
-    lcd.setCursor(0, 1);
-    lcd.write(rightArrow);
   }
 }
 
