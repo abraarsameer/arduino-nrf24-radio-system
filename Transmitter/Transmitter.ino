@@ -53,6 +53,13 @@ void setup() {
   radio.enableAckPayload(); //Enable payload with Ack bit
   radio.setRetries(2, 0);
   radio.openWritingPipe(pipe);
+
+  if(!radio.isChipConnected()) {
+    lcd.clear();
+    lcd.print(F("NRF24 not found"));
+    delay(1000);
+    backgroundVisible = false;
+  }
   
   memset(&txData, 0, sizeof(txData));
   memset(&rxData, 0, sizeof(rxData));
