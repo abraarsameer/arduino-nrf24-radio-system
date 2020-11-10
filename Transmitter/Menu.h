@@ -1,7 +1,7 @@
-#define UPBUTTON_PIN      8
+#define RIGHTBUTTON_PIN   8
 #define DOWNBUTTON_PIN    6
-#define LEFTBUTTON_PIN    5
-#define RIGHTBUTTON_PIN   7
+#define UPBUTTON_PIN      5
+#define LEFTBUTTON_PIN    7
 
 #define rightArrow 1
 #define leftArrow 2
