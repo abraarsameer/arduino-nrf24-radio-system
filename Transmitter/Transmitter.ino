@@ -13,19 +13,24 @@
 #define CS_PIN 10
 
 RF24 radio(CE_PIN, CS_PIN);
-const uint64_t pipe = 0xABCDABCD71LL; 
+const uint64_t pipe = 0xABCDABCD71LL;
+bool chipConnected;
 
-
-struct ChannelData {
+struct ChannelData
+{
   byte channel[4];
+  bool isFailsafeState : 1;
 } txData;
 
-struct TelemetryData {
+struct TelemetryData
+{
   byte batt;
-  unsigned int pps;
+  unsigned int pps : 12;
+  bool outputEnabled : 1;
 } rxData;
 
-void setup() {
+void setup()
+{
   //Initialize LCD Menu
   initMenu();
 
@@ -37,54 +42,60 @@ void setup() {
 #endif
 
   //Channel initialization
-  channel[0].begin(A0, 0*blockSize, THROTTLE);
-  channel[1].begin(A1, 1*blockSize, SERVO);
-  channel[2].begin(A2, 2*blockSize, SERVO);
-  channel[3].begin(A3, 3*blockSize, SERVO);
+  channel[0].begin(A0, 0 * blockSize, THROTTLE);
+  channel[1].begin(A1, 1 * blockSize, SERVO);
+  channel[2].begin(A2, 2 * blockSize, SERVO);
+  channel[3].begin(A3, 3 * blockSize, SERVO);
 
-  for (byte i = 0; i < 4; i++) {
+  for (byte i = 0; i < 4; i++)
+  {
     channel[i].load();
   }
 
   //Radio initialization code
   radio.begin();
+  chipConnected = radio.isChipConnected();
+  if (!chipConnected)
+  {
+    printfLCD(F("NRF24 not found"));
+    delay(1000);
+  }
   radio.setDataRate(RF24_250KBPS);
   radio.setPayloadSize(sizeof(txData));
   radio.enableAckPayload(); //Enable payload with Ack bit
-  radio.setRetries(2, 0);
   radio.openWritingPipe(pipe);
+  sendConfig(); //Send failsafe state to receiver
+  radio.setRetries(2, 0);
 
-  if(!radio.isChipConnected()) {
-    lcd.clear();
-    lcd.print(F("NRF24 not found"));
-    delay(1000);
-    backgroundVisible = false;
-  }
-  
-  memset(&txData, 0, sizeof(txData));
   memset(&rxData, 0, sizeof(rxData));
 }
 
-void loop() {
+void loop()
+{
   static unsigned long lastMillis = millis();
   static unsigned int sentPackets, receivedPackets, ackedPackets;
 
-  for (byte i = 0; i < 4; i++) {
+  for (byte i = 0; i < 4; i++)
+  {
     txData.channel[i] = channel[i].update();
   }
 
-  radio.write(&txData, sizeof(txData));
-  sentPackets++;
+  if (chipConnected)
+  {
+    radio.write(&txData, sizeof(txData));
+    sentPackets++;
 
- 
-  while (radio.isAckPayloadAvailable()) {
-    radio.read(&rxData, sizeof(rxData));
-    receivedPackets = rxData.pps;
-    ackedPackets++;
+    while (radio.isAckPayloadAvailable())
+    {
+      radio.read(&rxData, sizeof(rxData));
+      receivedPackets = rxData.pps;
+      ackedPackets++;
+    }
   }
-  
-  if(millis() - lastMillis > 1000) {
-    receiverVoltage = (rxData.batt/255.0)*5.0;
+
+  if (millis() - lastMillis > 1000)
+  {
+    receiverVoltage = (rxData.batt / 255.0) * 5.0;
     packetSucccessRate = sentPackets > 0 ? (ackedPackets * 100) / sentPackets : 0;
 
 #ifdef SERIAL_DEBUG
@@ -100,4 +111,30 @@ void loop() {
   }
 
   updateMenu();
+}
+
+void sendConfig()
+{
+  radio.setRetries(2, 15);
+
+  //Update channels for a while to stablize
+  unsigned long lastMillis = millis();
+  while (millis() - lastMillis < 500)
+  {
+    for (byte i = 0; i < 4; i++)
+    {
+      txData.channel[i] = channel[i].update();
+    }
+    lastMillis = millis();
+  }
+
+  txData.isFailsafeState = true;
+
+  if (!radio.write(&txData, sizeof(txData)))
+  {
+    printfLCD(F("Connect failed"));
+    delay(1000);
+  }
+
+  txData.isFailsafeState = false;
 }
