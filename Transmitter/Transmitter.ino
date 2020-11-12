@@ -7,7 +7,7 @@
 #include "RF24.h"
 #include "printf.h"
 
-#define SERIAL_DEBUG
+//#define SERIAL_DEBUG
 
 #define CE_PIN 9
 #define CS_PIN 10
