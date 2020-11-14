@@ -14,7 +14,7 @@
 
 RF24 radio(CE_PIN, CS_PIN);
 const uint64_t pipe = 0xABCDABCD71LL;
-bool chipConnected;
+bool moduleConnected, receiverConnected;
 
 struct ChannelData
 {
@@ -54,20 +54,30 @@ void setup()
 
   //Radio initialization code
   radio.begin();
-  chipConnected = radio.isChipConnected();
-  if (!chipConnected)
+  moduleConnected = radio.isChipConnected();
+  if (!moduleConnected)
   {
     printfLCD(F("NRF24 not found"));
     delay(1000);
   }
-  radio.setDataRate(RF24_250KBPS);
-  radio.setPayloadSize(sizeof(txData));
-  radio.enableAckPayload(); //Enable payload with Ack bit
-  radio.openWritingPipe(pipe);
-  sendConfig(); //Send failsafe state to receiver
-  radio.setRetries(2, 0);
+  else
+  {
+    radio.setDataRate(RF24_250KBPS);
+    radio.setPayloadSize(sizeof(txData));
+    radio.enableAckPayload(); //Enable payload with Ack bit
+    radio.openWritingPipe(pipe);
+    radio.setRetries(2, 0);
+  }
 
   memset(&rxData, 0, sizeof(rxData));
+
+  //Update channels for a while to stablize
+  unsigned long lastMillis = millis();
+  while (millis() - lastMillis < 500)
+  {
+    for (byte i = 0; i < 4; i++)
+      channel[i].update();
+  }
 }
 
 void loop()
@@ -80,16 +90,24 @@ void loop()
     txData.channel[i] = channel[i].update();
   }
 
-  if (chipConnected)
+  if (moduleConnected)
   {
-    radio.write(&txData, sizeof(txData));
-    sentPackets++;
-
-    while (radio.isAckPayloadAvailable())
+    if (!receiverConnected)
     {
-      radio.read(&rxData, sizeof(rxData));
-      receivedPackets = rxData.pps;
-      ackedPackets++;
+      if (beginCommunications())
+        receiverConnected = true;
+    }
+    else
+    {
+      radio.write(&txData, sizeof(txData));
+      sentPackets++;
+
+      while (radio.isAckPayloadAvailable())
+      {
+        radio.read(&rxData, sizeof(rxData));
+        receivedPackets = rxData.pps;
+        ackedPackets++;
+      }
     }
   }
 
@@ -113,28 +131,19 @@ void loop()
   updateMenu();
 }
 
-void sendConfig()
+bool beginCommunications()
 {
-  radio.setRetries(2, 15);
-
-  //Update channels for a while to stablize
-  unsigned long lastMillis = millis();
-  while (millis() - lastMillis < 500)
+  if (txData.channel[0] == 0) //Verify that throttle is set to 0 (other channels should be centered)
   {
-    for (byte i = 0; i < 4; i++)
+    radio.setRetries(2, 15);
+    txData.isFailsafeState = true;
+    if (radio.write(&txData, sizeof(txData)))
     {
-      txData.channel[i] = channel[i].update();
+      txData.isFailsafeState = false;
+      radio.setRetries(2, 0);
+      return true;
     }
-    lastMillis = millis();
   }
 
-  txData.isFailsafeState = true;
-
-  if (!radio.write(&txData, sizeof(txData)))
-  {
-    printfLCD(F("Connect failed"));
-    delay(1000);
-  }
-
-  txData.isFailsafeState = false;
+  return false;
 }
