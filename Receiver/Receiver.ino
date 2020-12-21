@@ -10,14 +10,13 @@
 struct ChannelData
 {
     byte channel[4];
-    bool isFailsafeState : 1;
+    bool isFailsafeState;
 } txData, failsafeState;
 
 struct TelemetryData
 {
-    byte batt;
-    unsigned int pps : 12;
-    bool outputEnabled : 1;
+    unsigned int pps ;
+    bool outputEnabled ;
 } rxData;
 
 byte chPins[4] = {A5, A4, A3, A2};
@@ -47,54 +46,51 @@ void setup()
 
     memset(&txData, 0, sizeof(txData));
     memset(&rxData, 0, sizeof(rxData));
+
+    Serial.begin(115200);
+    Serial.println(F("Receiver Serial Debug"));
 }
 
 void loop()
 {
-    while (radio.available())
+    if (radio.available())
     {
         radio.writeAckPayload(1, &rxData, sizeof(rxData));
         radio.read(&txData, sizeof(txData));
+        radio.flush_rx();
         receivedPackets++;
         receivedPacketsFailsafe++;
+    }
+
+    //Write outputs
+    if (outputEnabled)
+    {
+        for (byte i = 1; i < 4; i++)
+        {
+            channel[i].write(txData.channel[i]);
+        }
+        channel[0].writeMicroseconds(map(txData.channel[0], 0, 180, 1000, 2000));
     }
 
     parseTxData();
     updateFailsafe();
 
-    //Write outputs
-    if (outputEnabled)
-    {
-        for (byte i = 0; i < 4; i++)
-        {
-            channel[i].write(txData.channel[i]);
-        }
-    }
-
     //Execute every 1000ms
     static unsigned long lastMillis = millis();
     if (millis() - lastMillis > 1000)
     {
-        rxData.batt = 0;
         rxData.pps = receivedPackets;
 
         receivedPackets = 0;
         lastMillis = millis();
+
+        Serial.print(F(" Received = "));
+        Serial.println(rxData.pps);
+        Serial.print(F(" isFailsafeState = "));
+        Serial.print(txData.isFailsafeState);
+        Serial.print(F(" Channel 1 = "));
+        Serial.println(txData.channel[0]);
     }
-}
-
-byte readBatt()
-{
-    unsigned int val = 0;
-
-    for (byte i = 0; i < 10; i++)
-    {
-        val += analogRead(A0);
-    }
-
-    val = (val / 10) >> 2;
-
-    return val;
 }
 
 void updateFailsafe()
@@ -127,5 +123,6 @@ void parseTxData()
         failsafeState = txData;
         outputEnabled = true;
         rxData.outputEnabled = true;
+        Serial.println(F("Got failsafe data"));
     }
 }

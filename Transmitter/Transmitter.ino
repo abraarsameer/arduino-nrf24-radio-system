@@ -7,7 +7,7 @@
 #include "RF24.h"
 #include "printf.h"
 
-//#define SERIAL_DEBUG
+#define SERIAL_DEBUG
 
 #define CE_PIN 9
 #define CS_PIN 10
@@ -19,14 +19,13 @@ bool moduleConnected, receiverConnected;
 struct ChannelData
 {
   byte channel[4];
-  bool isFailsafeState : 1;
+  bool isFailsafeState ;
 } txData;
 
 struct TelemetryData
 {
-  byte batt;
-  unsigned int pps : 12;
-  bool outputEnabled : 1;
+  unsigned int pps ;
+  bool outputEnabled ;
 } rxData;
 
 void setup()
@@ -113,12 +112,13 @@ void loop()
 
   if (millis() - lastMillis > 1000)
   {
-    receiverVoltage = (rxData.batt / 255.0) * 5.0;
     packetSucccessRate = sentPackets > 0 ? (ackedPackets * 100) / sentPackets : 0;
 
 #ifdef SERIAL_DEBUG
-    printf("Sent = %d, Received = %d, Acked = %d\n", sentPackets, receivedPackets, ackedPackets);
+    if(receiverConnected)
+      printf("Sent = %d, Received = %d, Acked = %d\n", sentPackets, receivedPackets, ackedPackets);
 #endif
+
     sentPacketsDisplay = sentPackets;
     receivedPacketsDisplay = receivedPackets;
     ackedPacketsDisplay = ackedPackets;
@@ -133,17 +133,22 @@ void loop()
 
 bool beginCommunications()
 {
-  if (txData.channel[0] == 0) //Verify that throttle is set to 0 (other channels should be centered)
+  radio.setRetries(2, 15);
+  txData.isFailsafeState = true;
+
+  txData.channel[0] = 0;             
+
+  if (radio.write(&txData, sizeof(txData)))
   {
-    radio.setRetries(2, 15);
-    txData.isFailsafeState = true;
-    if (radio.write(&txData, sizeof(txData)))
-    {
-      txData.isFailsafeState = false;
-      radio.setRetries(2, 0);
-      return true;
-    }
+    txData.isFailsafeState = false;
+    radio.setRetries(2, 0);
+
+#ifdef SERIAL_DEBUG
+  Serial.println(F("Connection success"));
+#endif
+
+    return true;
   }
 
-  return false;
+  return true;
 }

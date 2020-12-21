@@ -105,7 +105,7 @@ int AnalogChannel::update() {
   val = constrain(val, lowEnd, highEnd);
 
   if (type == THROTTLE) {
-    val = map(val, lowEnd, highEnd, 0, 90 + range);
+    val = map(val, lowEnd, highEnd, 0, 2*range);
   } else {
     val = map(val, lowEnd, highEnd, 90 - range, 90 + range);
   }
