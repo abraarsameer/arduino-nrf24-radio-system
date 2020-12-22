@@ -1,16 +1,20 @@
+//#define SERIAL_DEBUG
+
 #include <RF24.h>
 #include <Servo.h>
 
 #define CE_PIN 7
 #define CS_PIN 8
 
-struct ChannelData {
-  byte channel[4];
+struct ChannelData
+{
+    byte channel[4];
 } txData;
 
-struct TelemetryData {
-  byte batt;
-  unsigned int pps;
+struct TelemetryData
+{
+    byte batt;
+    unsigned int pps;
 } rxData;
 
 byte chPins[4] = {A5, A4, A3, A2};
@@ -21,8 +25,10 @@ const uint64_t pipe = 0xABCDABCD71LL;
 
 unsigned int receivedPackets;
 
-void setup() {
-    for(byte i = 0; i < 4; i++) {
+void setup()
+{
+    for (byte i = 0; i < 4; i++)
+    {
         channel[i].attach(chPins[i]);
     }
 
@@ -36,31 +42,38 @@ void setup() {
     memset(&txData, 90, sizeof(txData));
     memset(&rxData, 0, sizeof(rxData));
 
+#ifdef SERIAL_DEBUG
     Serial.begin(115200);
     Serial.println(F("Receiver Serial Debug"));
+#endif
 }
 
-void loop() {
+void loop()
+{
     static unsigned long lastMillis = millis();
 
-    if (radio.available()) {
+    if (radio.available())
+    {
         radio.writeAckPayload(1, &rxData, sizeof(rxData));
         radio.read(&txData, sizeof(txData));
         receivedPackets++;
     }
 
-    if (millis() - lastMillis > 1000) {
+    if (millis() - lastMillis > 1000)
+    {
         rxData.batt = 0;
         rxData.pps = receivedPackets;
 
         receivedPackets = 0;
         lastMillis = millis();
-
+#ifdef SERIAL_DEBUG
         Serial.print(F("Received = "));
         Serial.println(rxData.pps);
+#endif
     }
 
-    for (byte i = 0; i < 4; i++) {
+    for (byte i = 0; i < 4; i++)
+    {
         channel[i].write(txData.channel[i]);
     }
 }
