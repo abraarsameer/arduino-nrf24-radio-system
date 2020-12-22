@@ -13,7 +13,7 @@
 #define CS_PIN 10
 
 RF24 radio(CE_PIN, CS_PIN);
-const uint64_t pipe = 0xABCDABCD71LL;
+const uint8_t address[] = "tx1";
 bool moduleConnected, receiverConnected;
 
 struct ChannelData
@@ -59,15 +59,18 @@ void setup()
     printfLCD(F("NRF24 not found"));
     delay(1000);
   }
-  else
+  else 
   {
-    radio.setDataRate(RF24_250KBPS);
-    radio.setPayloadSize(sizeof(txData));
-    radio.enableAckPayload(); //Enable payload with Ack bit
-    radio.openWritingPipe(pipe);
-    radio.setRetries(2, 0);
+  radio.setDataRate(RF24_250KBPS);
+  radio.enableDynamicPayloads();
+  radio.enableAckPayload(); //Enable payload with Ack bit
+  radio.setRetries(2, 0);
+  radio.setAddressWidth(sizeof(address) - 1);
+  radio.openWritingPipe(address);
+  radio.stopListening();
   }
 
+  memset(&txData, 0, sizeof(txData));
   memset(&rxData, 0, sizeof(rxData));
 
   //Update channels for a while to stablize
@@ -101,7 +104,7 @@ void loop()
       radio.write(&txData, sizeof(txData));
       sentPackets++;
 
-      while (radio.isAckPayloadAvailable())
+      if (radio.available())
       {
         radio.read(&rxData, sizeof(rxData));
         receivedPackets = rxData.pps;

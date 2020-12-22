@@ -1,3 +1,5 @@
+//#define SERIAL_DEBUG
+
 #include <RF24.h>
 #include <Servo.h>
 
@@ -23,7 +25,7 @@ byte chPins[4] = {A5, A4, A3, A2};
 Servo channel[4];
 
 RF24 radio(CE_PIN, CS_PIN);
-const uint64_t pipe = 0xABCDABCD71LL;
+const uint8_t address[] = "tx1"; //Size should be within 3-5 characters
 
 unsigned int receivedPackets, receivedPacketsFailsafe;
 
@@ -38,17 +40,19 @@ void setup()
 
     radio.begin();
     radio.setDataRate(RF24_250KBPS);
-    radio.setAutoAck(true);
+    radio.enableDynamicPayloads();
     radio.enableAckPayload();
-    radio.setPayloadSize(sizeof(rxData));
-    radio.openReadingPipe(1, pipe);
+    radio.setAddressWidth(sizeof(address) - 1);
+    radio.openReadingPipe(1, address);
     radio.startListening();
 
     memset(&txData, 0, sizeof(txData));
     memset(&rxData, 0, sizeof(rxData));
 
+#ifdef SERIAL_DEBUG
     Serial.begin(115200);
     Serial.println(F("Receiver Serial Debug"));
+#endif
 }
 
 void loop()
@@ -83,13 +87,10 @@ void loop()
 
         receivedPackets = 0;
         lastMillis = millis();
-
-        Serial.print(F(" Received = "));
+#ifdef SERIAL_DEBUG
+        Serial.print(F("Received = "));
         Serial.println(rxData.pps);
-        Serial.print(F(" isFailsafeState = "));
-        Serial.print(txData.isFailsafeState);
-        Serial.print(F(" Channel 1 = "));
-        Serial.println(txData.channel[0]);
+#endif
     }
 }
 
