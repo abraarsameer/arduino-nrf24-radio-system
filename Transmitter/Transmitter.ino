@@ -59,15 +59,15 @@ void setup()
     printfLCD(F("NRF24 not found"));
     delay(1000);
   }
-  else 
+  else
   {
-  radio.setDataRate(RF24_250KBPS);
-  radio.enableDynamicPayloads();
-  radio.enableAckPayload(); //Enable payload with Ack bit
-  radio.setRetries(2, 0);
-  radio.setAddressWidth(sizeof(address) - 1);
-  radio.openWritingPipe(address);
-  radio.stopListening();
+    radio.setDataRate(RF24_250KBPS);
+    radio.enableDynamicPayloads();
+    radio.enableAckPayload(); //Enable payload with Ack bit
+    radio.setRetries(2, 0);
+    radio.setAddressWidth(sizeof(address) - 1);
+    radio.openWritingPipe(address);
+    radio.stopListening();
   }
 
   memset(&txData, 0, sizeof(txData));
@@ -75,7 +75,7 @@ void setup()
 
   //Update channels for a while to stablize
   unsigned long lastMillis = millis();
-  while (millis() - lastMillis < 500)
+  while (millis() - lastMillis < 100)
   {
     for (byte i = 0; i < 4; i++)
       channel[i].update();
@@ -92,7 +92,7 @@ void loop()
     txData.channel[i] = channel[i].update();
   }
 
-  if (moduleConnected)
+  if (moduleConnected && throttleCheck())
   {
     if (!receiverConnected)
     {
@@ -118,7 +118,7 @@ void loop()
     packetSucccessRate = sentPackets > 0 ? (ackedPackets * 100) / sentPackets : 0;
 
 #ifdef SERIAL_DEBUG
-    if(receiverConnected)
+    if (receiverConnected)
       printf("Sent = %d, Received = %d, Acked = %d\n", sentPackets, receivedPackets, ackedPackets);
 #endif
 
@@ -131,7 +131,8 @@ void loop()
     lastMillis = millis();
   }
 
-  updateMenu();
+  if (throttleCheck())
+    updateMenu();
 }
 
 bool beginCommunications()
@@ -139,7 +140,7 @@ bool beginCommunications()
   radio.setRetries(2, 15);
   txData.isFailsafeState = true;
 
-  txData.channel[0] = 0;             
+  txData.channel[0] = 0;
 
   if (radio.write(&txData, sizeof(txData)))
   {
@@ -147,11 +148,35 @@ bool beginCommunications()
     radio.setRetries(2, 0);
 
 #ifdef SERIAL_DEBUG
-  Serial.println(F("Connection success"));
+    Serial.println(F("Connection success"));
 #endif
 
     return true;
   }
 
   return true;
+}
+
+bool throttleCheck()
+{
+  static bool throttleCheckPassed = false;
+
+  if (!throttleCheckPassed)
+  {
+    if (txData.channel[0] == 0)
+      throttleCheckPassed = true;
+    else
+    {
+      static bool messageVisible;
+      if (!messageVisible)
+      {
+        printfLCD(F("Throttle High"), F("Continue?"));
+        messageVisible = true;
+      }
+      backgroundVisible = false; //To ensure the background shows up again later
+      if (getButtonState() == RIGHT)
+        throttleCheckPassed = true;
+    }
+  }
+  return throttleCheckPassed;
 }

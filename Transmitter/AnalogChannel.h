@@ -53,6 +53,14 @@ void printfLCD(const __FlashStringHelper* c) {
   lcd.print(c);
 }
 
+void printfLCD(const __FlashStringHelper* c1, const __FlashStringHelper* c2) {
+  lcd.clear();
+  lcd.home();
+  lcd.print(c1);
+  lcd.setCursor(0, 1);
+  lcd.print(c2);
+}
+
 byte analogReadAvg(byte pin) {
 
   unsigned int val = 0;
