@@ -21,7 +21,7 @@ byte chPins[4] = {A5, A4, A3, A2};
 Servo channel[4];
 
 RF24 radio(CE_PIN, CS_PIN);
-const uint64_t pipe = 0xABCDABCD71LL;
+const uint8_t address[] = "tx1"; //Size should be within 3-5 characters
 
 unsigned int receivedPackets;
 
@@ -36,7 +36,8 @@ void setup()
     radio.setDataRate(RF24_250KBPS);
     radio.enableDynamicPayloads();
     radio.enableAckPayload();
-    radio.openReadingPipe(1, pipe);
+    radio.setAddressWidth(sizeof(address) - 1);
+    radio.openReadingPipe(1, address);
     radio.startListening();
 
     memset(&txData, 90, sizeof(txData));

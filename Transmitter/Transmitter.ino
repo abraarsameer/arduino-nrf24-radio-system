@@ -13,7 +13,7 @@
 #define CS_PIN 10
 
 RF24 radio(CE_PIN, CS_PIN);
-const uint64_t pipe = 0xABCDABCD71LL;
+const uint8_t address[] = "tx1";
 
 struct ChannelData
 {
@@ -55,7 +55,8 @@ void setup()
   radio.enableDynamicPayloads();
   radio.enableAckPayload(); //Enable payload with Ack bit
   radio.setRetries(2, 0);
-  radio.openWritingPipe(pipe);
+  radio.setAddressWidth(sizeof(address) - 1);
+  radio.openWritingPipe(address);
   radio.stopListening();
 
   if (!radio.isChipConnected())
