@@ -28,20 +28,22 @@ void setup() {
 
     radio.begin();
     radio.setDataRate(RF24_250KBPS);
-    radio.setAutoAck(true);
+    radio.enableDynamicPayloads();
     radio.enableAckPayload();
-    radio.setPayloadSize(sizeof(rxData));
     radio.openReadingPipe(1, pipe);
     radio.startListening();
 
     memset(&txData, 90, sizeof(txData));
     memset(&rxData, 0, sizeof(rxData));
+
+    Serial.begin(115200);
+    Serial.println(F("Receiver Serial Debug"));
 }
 
 void loop() {
     static unsigned long lastMillis = millis();
 
-    while (radio.available()) {
+    if (radio.available()) {
         radio.writeAckPayload(1, &rxData, sizeof(rxData));
         radio.read(&txData, sizeof(txData));
         receivedPackets++;
@@ -53,6 +55,9 @@ void loop() {
 
         receivedPackets = 0;
         lastMillis = millis();
+
+        Serial.print(F("Received = "));
+        Serial.println(rxData.pps);
     }
 
     for (byte i = 0; i < 4; i++) {

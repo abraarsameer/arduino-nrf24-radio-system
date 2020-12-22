@@ -49,10 +49,11 @@ void setup() {
   //Radio initialization code
   radio.begin();
   radio.setDataRate(RF24_250KBPS);
-  radio.setPayloadSize(sizeof(txData));
+  radio.enableDynamicPayloads();
   radio.enableAckPayload(); //Enable payload with Ack bit
   radio.setRetries(2, 0);
   radio.openWritingPipe(pipe);
+  radio.stopListening();
 
   if(!radio.isChipConnected()) {
     lcd.clear();
@@ -77,7 +78,7 @@ void loop() {
   sentPackets++;
 
  
-  while (radio.isAckPayloadAvailable()) {
+  if (radio.available()) {
     radio.read(&rxData, sizeof(rxData));
     receivedPackets = rxData.pps;
     ackedPackets++;
