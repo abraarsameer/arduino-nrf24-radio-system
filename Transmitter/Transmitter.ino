@@ -19,13 +19,13 @@ bool moduleConnected, receiverConnected;
 struct ChannelData
 {
   byte channel[4];
-  bool isFailsafeState ;
+  bool isFailsafeState : 1;
 } txData;
 
 struct TelemetryData
 {
-  unsigned int pps ;
-  bool outputEnabled ;
+  unsigned int pps : 12;
+  bool outputEnabled : 1;
 } rxData;
 
 void setup()

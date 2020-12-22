@@ -12,13 +12,13 @@
 struct ChannelData
 {
     byte channel[4];
-    bool isFailsafeState;
+    bool isFailsafeState : 1;
 } txData, failsafeState;
 
 struct TelemetryData
 {
-    unsigned int pps ;
-    bool outputEnabled ;
+    unsigned int pps : 12;
+    bool outputEnabled : 1;
 } rxData;
 
 byte chPins[4] = {A5, A4, A3, A2};
@@ -88,7 +88,7 @@ void loop()
         receivedPackets = 0;
         lastMillis = millis();
 #ifdef SERIAL_DEBUG
-        Serial.print(F("Received = "));
+        Serial.print(F("Received Packets = "));
         Serial.println(rxData.pps);
 #endif
     }
@@ -119,11 +119,20 @@ void updateFailsafe()
 
 void parseTxData()
 {
-    if (txData.isFailsafeState && !outputEnabled)
+    bool gotNewFailsafe = false;
+
+    for(byte i = 0; i < 4; i++) 
+    {
+        gotNewFailsafe |= (txData.channel[i] != failsafeState.channel[i]);
+    }
+
+    if (txData.isFailsafeState && gotNewFailsafe)
     {
         failsafeState = txData;
         outputEnabled = true;
         rxData.outputEnabled = true;
-        Serial.println(F("Got failsafe data"));
+#ifdef SERIAL_DEBUG
+        Serial.println(F("Got new failsafe data"));
+#endif
     }
 }
