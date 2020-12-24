@@ -3,7 +3,8 @@
 
 #include <EEPROM.h>
 #include "Filter.h"
-#include "Globals.h"
+#include "LCD.h"
+#include "Button.h"
 
 #define filterWeight 0.2
 
@@ -40,9 +41,5 @@ class AnalogChannel {
     int8_t trim = 0;
     bool invert = false;
 };
-
-void printfLCD(int x);
-void printfLCD(const __FlashStringHelper* c);
-void printfLCD(const __FlashStringHelper* c1, const __FlashStringHelper* c2);
 
 #endif

@@ -1,6 +1,6 @@
 #include "Button.h"
 
-unsigned long lastMillisUpdate;
+Button upbtn, downbtn, leftbtn, rightbtn;
 
 Button::Button() {}
 
@@ -37,4 +37,34 @@ byte Button::update() {
 
 
   return buttonState;
+}
+
+void initButtons() {
+  upbtn.begin(UPBUTTON_PIN);
+  downbtn.begin(DOWNBUTTON_PIN);
+  leftbtn.begin(LEFTBUTTON_PIN);
+  rightbtn.begin(RIGHTBUTTON_PIN);
+}
+
+buttonState_t getButtonState() {
+  byte up = upbtn.update();
+  byte down = downbtn.update();
+  byte left = leftbtn.update();
+  byte right = rightbtn.update();
+
+  if (up == ButtonTouched && !down && !left && !right) {
+    return UP;
+  } else if (!up && down == ButtonTouched && !left && !right) {
+    return DOWN;
+  } else if (!up && !down && left == ButtonTouched && !right) {
+    return LEFT;
+  } else if (!up && !down && !left && right == ButtonTouched) {
+    return RIGHT;
+  } else if (!up && !down && left == ButtonHeld && !right) {
+    return LEFT_HOLD;
+  } else if (!up && !down && !left && right == ButtonHeld) {
+    return RIGHT_HOLD;
+  } else {
+    return NONE;
+  }
 }

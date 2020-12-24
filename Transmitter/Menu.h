@@ -2,20 +2,9 @@
 #define MENU_H
 
 #include "Arduino.h"
-#include "Globals.h"
+#include "Button.h"
+#include "LCD.h"
 #include "AnalogChannel.h"
-
-#define RIGHTBUTTON_PIN   8
-#define DOWNBUTTON_PIN    6
-#define UPBUTTON_PIN      5
-#define LEFTBUTTON_PIN    7
-
-#define rightArrow 1
-#define leftArrow 2
-#define slider 3
-#define antenna 4
-#define txLowBatt 5
-#define rxLowBatt 6
 
 #define txLowBattThreshold 7.0
 #define rxLowBattThreshold 10.5

@@ -46,9 +46,6 @@ byte packetSucccessRate;
 float transmitterVoltage, receiverVoltage;
 unsigned int sentPacketsDisplay, receivedPacketsDisplay, ackedPacketsDisplay;
 
-LiquidCrystal_I2C lcd(0x27, 16, 2);
-Button upbtn, downbtn, leftbtn, rightbtn;
-
 void saveConfig() {
   lcd.clear();
   lcd.home();
@@ -89,76 +86,10 @@ void calibrateChannels() {
   }
 }
 
-void printFloat(float val) {
-  char buff[4];
-  dtostrf(val, 4, 1, buff);
-  lcd.print(buff);
-}
-
-void printInt(int val, size_t len) {
-  char buff[len+1];
-  char spaces[4] = "   ";
-  
-  itoa(val, buff, 10);
-  strncat(buff, spaces, len - strlen(buff));
-  lcd.print(buff);
-}
-
-void printSlider(bool val, byte row, byte col) {
-  if (val) {
-    lcd.setCursor(row, col);
-    lcd.print(" ");
-    lcd.setCursor(row + 1, col);
-    lcd.write(slider);
-  } else {
-    lcd.setCursor(row, col);
-    lcd.write(slider);
-    lcd.setCursor(row + 1, col);
-    lcd.print(" ");
-  }
-}
-
 void initMenu() {
-  lcd.begin();
-  byte rightArrowChar[] = {B10000, B11000, B11100, B11110,
-                           B11110, B11100, B11000, B10000
-                          };
-
-  byte leftArrowChar[] = {B00001, B00011, B00111, B01111,
-                          B01111, B00111, B00011, B00001
-                         };
-
-  byte sliderChar[] = {B01110, B10001, B10101, B10101,
-                       B10101, B10101, B10001, B01110
-                      };
-
-  byte antennaChar[] = {B00000, B11111, B10001, B01010,
-                        B00100, B00100, B00100, B00100
-                       };
-
-  byte txLowBattChar[] = {B01110, B10001, B11111, B10101,
-                          B10101, B10101, B10001, B11111
-                         };
-
-  byte rxLowBattChar[] = {B01110, B10001, B11111, B11011,
-                          B11101, B11011, B10001, B11111
-                         };
-
-
-  lcd.createChar(rightArrow, rightArrowChar);
-  lcd.createChar(leftArrow, leftArrowChar);
-  lcd.createChar(slider, sliderChar);
-  lcd.createChar(antenna, antennaChar);
-  lcd.createChar(txLowBatt, txLowBattChar);
-  lcd.createChar(rxLowBatt, rxLowBattChar);
-
-  upbtn.begin(UPBUTTON_PIN);
-  downbtn.begin(DOWNBUTTON_PIN);
-  leftbtn.begin(LEFTBUTTON_PIN);
-  rightbtn.begin(RIGHTBUTTON_PIN);
+  initLCD();
+  initButtons();
 }
-
-
 
 void switchMenu(fstring* menu, byte size) {
   currentMenu = menu;
@@ -197,29 +128,8 @@ int8_t decrement(int8_t val, int8_t low, int8_t high) {
   return val;
 }
 
-byte getButtonState() {
-  byte up = upbtn.update();
-  byte down = downbtn.update();
-  byte left = leftbtn.update();
-  byte right = rightbtn.update();
 
-  if (up == ButtonTouched && !down && !left && !right) {
-    return UP;
-  } else if (!up && down == ButtonTouched && !left && !right) {
-    return DOWN;
-  } else if (!up && !down && left == ButtonTouched && !right) {
-    return LEFT;
-  } else if (!up && !down && !left && right == ButtonTouched) {
-    return RIGHT;
-  } else if (!up && !down && left == ButtonHeld && !right) {
-    return LEFT_HOLD;
-  } else if (!up && !down && !left && right == ButtonHeld) {
-    return RIGHT_HOLD;
-  } else {
-    return NONE;
-  }
-}
-
+//Callback Functions
 
 void backgroundMenuCallback() {
   byte buttonState = getButtonState();
@@ -583,6 +493,9 @@ void updateEntries() {
     lcd.print(" ");
   }
 }
+
+
+//Display Functions
 
 void displayBackground() {
   if (!backgroundVisible) {
