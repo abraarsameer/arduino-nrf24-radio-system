@@ -1,5 +1,3 @@
-#include "Globals.h"
-#include "AnalogChannel.h"
 #include "Menu.h"
 
 #include <SPI.h>

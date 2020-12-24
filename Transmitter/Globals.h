@@ -1,11 +1,16 @@
+#ifndef GLOBALS_H
+#define GLOBALS_H
+
+#include "Arduino.h"
 #include "Button.h"
+#include <LiquidCrystal_I2C.h>
 
 #define lcdUpdateInterval 125
 
-#include <LiquidCrystal_I2C.h>
-LiquidCrystal_I2C lcd(0x27, 16, 2);
-Button upbtn, downbtn, leftbtn, rightbtn;
-
-unsigned long lastMillisUpdate;
+extern LiquidCrystal_I2C lcd;
+extern Button upbtn, downbtn, leftbtn, rightbtn;
+extern unsigned long lastMillisUpdate;
 
 byte getButtonState();
+
+#endif

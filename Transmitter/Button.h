@@ -1,3 +1,8 @@
+#ifndef BUTTON_H
+#define BUTTON_H
+
+#include "Arduino.h"
+
 #define ButtonNothing 0
 #define ButtonTouched 1
 #define ButtonHeld    2
@@ -19,39 +24,4 @@ class Button {
     byte update();
 };
 
-Button::Button() {}
-
-void Button::begin(byte pin) {
-  this->pin = pin;
-  pinMode(pin, INPUT_PULLUP);
-}
-
-byte Button::update() {
-  currentState = !digitalRead(pin);
-  buttonState = ButtonNothing;
-
-  if (currentState != lastState) {
-    lastState = currentState;
-
-    if (!currentState) {
-      unsigned long delay = millis() - lastMillisHigh;
-
-      if (delay > buttonDebounceDelay && delay < buttonHoldDelay) {
-        buttonState = ButtonTouched;
-      }
-
-    } else {
-      lastMillisHigh = millis();
-    }
-  } else {
-    if (currentState) {
-      unsigned long delay = millis() - lastMillisHigh;
-
-      if (delay > buttonHoldDelay)
-        buttonState = ButtonHeld;
-    }
-  }
-
-
-  return buttonState;
-}
+#endif
