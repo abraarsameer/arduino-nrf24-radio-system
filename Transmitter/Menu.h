@@ -4,7 +4,7 @@
 #include "Arduino.h"
 #include "Button.h"
 #include "LCD.h"
-#include "AnalogChannel.h"
+#include "Channels.h"
 
 #define txLowBattThreshold 7.0
 #define rxLowBattThreshold 10.5
@@ -65,6 +65,5 @@ extern unsigned int sentPacketsDisplay, receivedPacketsDisplay, ackedPacketsDisp
 //
 
 void updateMenu();
-void initMenu();
 
 #endif

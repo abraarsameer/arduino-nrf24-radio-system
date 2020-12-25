@@ -40,56 +40,9 @@ byte lastScreen = 255;
 bool optionSelected;
 bool backgroundVisible, radioStatsMenuVisible;
 
-AnalogChannel channel[4];
-
 byte packetSucccessRate;
 float transmitterVoltage, receiverVoltage;
 unsigned int sentPacketsDisplay, receivedPacketsDisplay, ackedPacketsDisplay;
-
-void saveConfig() {
-  lcd.clear();
-  lcd.home();
-
-  for (byte i = 0; i < 4; i++) {
-    channel[i].save();
-  }
-
-  lcd.print(F("Config saved"));
-  delay(500);
-}
-
-void clearEEPROM() {
-  lcd.clear();
-  lcd.home();
-  lcd.print(F("Clearing EEPROM"));
-
-  for (int i = 0 ; i < EEPROM.length() ; i++) {
-    EEPROM.update(i, 0);
-  }
-
-  lcd.clear();
-  lcd.home();
-  lcd.print(F("Done"));
-  delay(500);
-}
-
-void calibrateChannels() {
-  for (byte i = 0; i < 4; i++) {
-    lcd.clear();
-    lcd.home();
-    lcd.print(F("Calibrating"));
-    lcd.setCursor(0, 1);
-    lcd.print(F("Ch "));
-    lcd.print(i + 1);
-    delay(1000);
-    channel[i].calibrate();
-  }
-}
-
-void initMenu() {
-  initLCD();
-  initButtons();
-}
 
 void switchMenu(fstring* menu, byte size) {
   currentMenu = menu;
