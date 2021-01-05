@@ -2,6 +2,7 @@
 #include "Radio.h"
 #include "printf.h"
 #include "Init.h"
+#include "Mixing.h"
 
 //#define SERIAL_DEBUG
 
@@ -19,6 +20,7 @@ void loop()
   {
     txData.channel[i] = channel[i].update();
   }
+  updateMixes();
 
   if (moduleConnected && throttleCheck())
   {

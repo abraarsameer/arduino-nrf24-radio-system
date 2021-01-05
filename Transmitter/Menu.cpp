@@ -4,10 +4,11 @@ pchar Display[] = "Display";
 pchar Trim[] = "Trim";
 pchar Range[] = "Range";
 pchar Invert[] = "Invert";
+pchar Mixing[] = "Mixing";
 pchar Save[] = "Configuration";
 pchar RadioStats[] = "Radio Stats";
 
-fstring mainMenu[] = {f(Display), f(Trim), f(Range), f(Invert), f(Save), f(RadioStats)};
+fstring mainMenu[] = {f(Display), f(Trim), f(Range), f(Invert), f(Mixing), f(Save), f(RadioStats)};
 fstring backgroundMenu[] = {f(Display)}; //Dummy, only serves to provide an address for identification
 
 pchar Ch1[] = "Ch 1";
@@ -20,15 +21,19 @@ fstring trimMenu[] = {f(Ch1), f(Ch2), f(Ch3), f(Ch4)};
 fstring rangeMenu[] = {f(Ch1), f(Ch2), f(Ch3), f(Ch4)};
 fstring invertMenu[] = {f(Ch1), f(Ch2), f(Ch3), f(Ch4)};
 
+pchar elevon[] = "Elevon";
+
+fstring mixingMenu[] =  {f(elevon)};
+
 pchar saveMsg[] = "Save";
 pchar calibrateMsg[] = "Calibrate";
 pchar clearEEPROMMsg[] = "Clear EEPROM";
 fstring saveMenu[] = {f(saveMsg), f(calibrateMsg), f(clearEEPROMMsg)};
 
-fstring radioStatsMenu[] = {f(Display)}; //Dummy
+fstring radioStatsMenu[] = {f(Display)};
 
-fstring* subMenus[] = {displayMenu, trimMenu, rangeMenu, invertMenu, saveMenu, radioStatsMenu};
-byte subMenuSizes[] = {4, 4, 4, 4, 3, 0};
+fstring* subMenus[] = {displayMenu, trimMenu, rangeMenu, invertMenu, mixingMenu, saveMenu, radioStatsMenu};
+byte subMenuSizes[] = {4, 4, 4, 4, 1, 3, 0};
 
 /*--------------------------------*/
 
@@ -118,7 +123,7 @@ void displayMenuCallback() {
   if (millis() - lastMillisUpdate > lcdUpdateInterval) {
     lastMillisUpdate = millis();
     byte currentScreen = currentPos / 2;
-    int8_t val = channel[currentScreen * 2].read() - 90;
+    int8_t val = txData.channel[currentScreen * 2] - 90;
     lcd.setCursor(11, 0);
     printInt(abs(val), 3);
 
@@ -132,7 +137,7 @@ void displayMenuCallback() {
 
     if (currentPos != currentMenuSize) {
       lcd.setCursor(11, 1);
-      val = channel[currentScreen * 2 + 1].read() - 90;
+      val = txData.channel[currentScreen * 2 + 1] - 90;
       printInt(abs(val), 3);
 
       if (val < 0) {
@@ -386,6 +391,68 @@ void invertMenuCallback() {
   }
 }
 
+void mixingMenuCallback() {
+  byte currentScreen = currentPos / 2;
+  bool val = currentPos == 0 ? elevonMixEnabled : 0;
+  printSlider(val, 11, 0);
+
+  /*if (currentPos != currentMenuSize) {
+    val = channel[currentScreen * 2 + 1].invert;
+    printSlider(val, 11, 1);
+  }*/
+
+  byte row = (currentPos + 2) % 2;
+  if (optionSelected) {
+    lcd.setCursor(10, row);
+    lcd.write(leftArrow);
+    lcd.setCursor(13, row);
+    lcd.write(rightArrow);
+  } else {
+    lcd.setCursor(10, row);
+    lcd.print(" ");
+    lcd.setCursor(13, row);
+    lcd.print(" ");
+  }
+
+  byte buttonstate = getButtonState();
+  if (buttonstate == NONE) return;
+
+  switch (buttonstate) {
+    case UP:
+      if (optionSelected) {
+        optionSelected = false;
+      } else {
+        stepBackward();
+      }
+      break;
+    case DOWN:
+      if (optionSelected) {
+        optionSelected = false;
+      } else {
+        stepForward();
+      }
+      break;
+    case LEFT:
+      if (optionSelected) {
+        if(currentPos == 0) {
+          elevonMixEnabled = !elevonMixEnabled;
+        }
+      } else {
+        switchMenu(mainMenu, len(mainMenu));
+      }
+      break;
+    case RIGHT:
+      if (optionSelected) {
+        if (currentPos == 0) {
+          elevonMixEnabled = !elevonMixEnabled;
+        }
+      } else {
+        optionSelected = true;
+      }
+      break;
+  }
+}
+
 void saveMenuCallback() {
   byte buttonstate = getButtonState();
   if (buttonstate == NONE) return;
@@ -533,6 +600,8 @@ void updateMenu() {
     rangeMenuCallback();
   } else if (currentMenu == invertMenu) {
     invertMenuCallback();
+  } else if (currentMenu == mixingMenu) {
+    mixingMenuCallback();
   } else if (currentMenu == saveMenu) {
     saveMenuCallback();
   } else if (currentMenu == radioStatsMenu) {

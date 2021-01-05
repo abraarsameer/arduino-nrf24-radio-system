@@ -5,6 +5,8 @@
 #include "Button.h"
 #include "LCD.h"
 #include "Channels.h"
+#include "Mixing.h"
+#include "Radio.h"
 
 #define txLowBattThreshold 7.0
 #define rxLowBattThreshold 10.5
@@ -21,6 +23,7 @@ extern pchar Display[];
 extern pchar Trim[];
 extern pchar Range[];
 extern pchar Invert[];
+extern pchar Mixing[];
 extern pchar Save[];
 extern pchar RadioStats[];
 
@@ -36,6 +39,10 @@ extern fstring displayMenu[];
 extern fstring trimMenu[];
 extern fstring rangeMenu[];
 extern fstring invertMenu[];
+
+extern pchar elevon[] ;
+
+extern fstring mixingMenu[];
 
 extern pchar saveMsg[];
 extern pchar calibrateMsg[];
