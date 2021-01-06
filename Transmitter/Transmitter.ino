@@ -1,10 +1,7 @@
 #include "Menu.h"
 #include "Radio.h"
-#include "printf.h"
 #include "Init.h"
 #include "Mixing.h"
-
-//#define SERIAL_DEBUG
 
 void setup()
 {
@@ -18,8 +15,12 @@ void loop()
 
   for (byte i = 0; i < 4; i++)
   {
-    txData.channel[i] = channel[i].update();
+    //txData.channel[i] = channel[i].update();
+
+    Serial.print(channel[i].update());
+    Serial.print(", ");
   }
+  Serial.println();
   updateMixes();
 
   if (moduleConnected && throttleCheck())

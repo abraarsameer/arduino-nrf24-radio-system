@@ -21,8 +21,7 @@ void AnalogChannel::begin(byte pin, float weight) {
 }
 
 int8_t AnalogChannel::update() {
-  byte val = filter.update() >> 2;
-  val = constrain(val, lowEnd, highEnd);
+  byte val = map(filter.update(), 0, 1023, LOW_END_LIMIT, HIGH_END_LIMIT);
   output = map(val, lowEnd, highEnd, LOW_END_LIMIT, HIGH_END_LIMIT);
 
   return output;

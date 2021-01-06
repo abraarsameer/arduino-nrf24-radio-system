@@ -4,7 +4,7 @@
 #include "Arduino.h"
 #include "Button.h"
 #include "LCD.h"
-#include "Channels.h"
+#include "Config.h"
 #include "Mixing.h"
 #include "Radio.h"
 

@@ -1,4 +1,4 @@
-#include "Channels.h"
+#include "Config.h"
 
 uint16_t OSFS::startOfEEPROM = 1;
 uint16_t OSFS::endOfEEPROM = 1024;
@@ -52,6 +52,8 @@ void saveConfig()
 
 void clearEEPROM()
 {
+    lcd.clear();
+    lcd.home();
     OSFS::format();
     lcd.print(F("Done"));
     delay(500);

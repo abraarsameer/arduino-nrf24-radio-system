@@ -1,5 +1,5 @@
-#ifndef CHANNELS_H
-#define CHANNELS_H
+#ifndef CONFIG_H
+#define CONFIG_H
 
 #include "AnalogChannel.h"
 #include "LCD.h"

@@ -72,9 +72,7 @@ void printfLCD(int x) {
   if (millis() - lastMillisUpdate > lcdUpdateInterval) {
     lastMillisUpdate = millis();
     lcd.setCursor(0, 1);
-    lcd.print(F("   "));
-    lcd.setCursor(0, 1);
-    lcd.print(x);
+    printInt(x, 4);
   }
 }
 

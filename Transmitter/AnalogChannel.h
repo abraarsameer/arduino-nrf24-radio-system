@@ -14,7 +14,6 @@ class AnalogChannel {
     Filter filter;
     int8_t output;
     byte pin;
-    byte type;
 
   public:
     int8_t lowEnd = LOW_END_LIMIT, highEnd = HIGH_END_LIMIT;

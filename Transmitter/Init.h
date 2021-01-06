@@ -3,7 +3,9 @@
 
 #include "Radio.h"
 #include "Button.h"
-#include "Channels.h"
+#include "Config.h"
+
+#define SERIAL_DEBUG
 
 void initAll();
 
