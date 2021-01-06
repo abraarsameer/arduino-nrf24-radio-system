@@ -120,7 +120,7 @@ void mainMenuCallback() {
 }
 
 void displayMenuCallback() {
-  if (millis() - lastMillisUpdate > lcdUpdateInterval) {
+  /*if (millis() - lastMillisUpdate > lcdUpdateInterval) {
     lastMillisUpdate = millis();
     byte currentScreen = currentPos / 2;
     int8_t val = txData.channel[currentScreen * 2] - 90;
@@ -166,11 +166,11 @@ void displayMenuCallback() {
     case RIGHT:
       //Nothing
       break;
-  }
+  }*/
 }
 
 void trimMenuCallback() {
-  byte buttonstate = getButtonState();
+  /*byte buttonstate = getButtonState();
 
   if (millis() - lastMillisUpdate > lcdUpdateInterval) {
     lastMillisUpdate = millis();
@@ -256,11 +256,11 @@ void trimMenuCallback() {
         optionSelected = true;
       }
       break;
-  }
+  }*/
 }
 
 void rangeMenuCallback() {
-  byte buttonstate = getButtonState();
+  /*byte buttonstate = getButtonState();
 
   if (millis() - lastMillisUpdate > lcdUpdateInterval) {
     lastMillisUpdate = millis();
@@ -330,11 +330,11 @@ void rangeMenuCallback() {
         optionSelected = true;
       }
       break;
-  }
+  }*/
 }
 
 void invertMenuCallback() {
-  byte currentScreen = currentPos / 2;
+  /*byte currentScreen = currentPos / 2;
   bool val = channel[currentScreen * 2].invert;
   printSlider(val, 11, 0);
 
@@ -388,7 +388,7 @@ void invertMenuCallback() {
         optionSelected = true;
       }
       break;
-  }
+  }*/
 }
 
 void mixingMenuCallback() {

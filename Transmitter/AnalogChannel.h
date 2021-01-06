@@ -6,40 +6,24 @@
 #include "LCD.h"
 #include "Button.h"
 
-#define filterWeight 0.2
-
-#define blockSize sizeof(ChannelConfig)
-
-#define SERVO 1
-#define THROTTLE 0
-
-typedef struct {
-  byte pin;
-  byte lowEnd, highEnd;
-  byte trim, range;
-  bool invert : 1;
-} ChannelConfig;
+#define LOW_END_LIMIT -127
+#define HIGH_END_LIMIT 127
 
 class AnalogChannel {
   private:
     Filter filter;
-    byte output;
+    int8_t output;
     byte pin;
-    byte lowEnd = 0, highEnd = 255;
-    byte startAddress;
     byte type;
 
   public:
+    int8_t lowEnd = LOW_END_LIMIT, highEnd = HIGH_END_LIMIT;
+
     AnalogChannel();
-    void begin(byte pin, byte startAddress, byte type);
-    void load();
-    void save();
-    int update();
-    byte read();
+    void begin(byte pin, float weight);
+    int8_t update();
+    int8_t read();
     void calibrate();
-    byte range = 90;
-    int8_t trim = 0;
-    bool invert = false;
 };
 
 #endif

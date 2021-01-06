@@ -1,6 +1,6 @@
 #include "AnalogChannel.h"
 
-byte analogReadAvg(byte pin) {
+int8_t analogReadAvg(byte pin) {
 
   unsigned int val = 0;
 
@@ -8,72 +8,34 @@ byte analogReadAvg(byte pin) {
     val += analogRead(pin);
   }
 
-  val /= 50;
-
-  return val >> 2;
-}
-
-AnalogChannel::AnalogChannel() {}
-
-void AnalogChannel::begin(byte pin, byte startAddress, byte type) {
-  this->pin = pin;
-  this->startAddress = startAddress;
-  this->type = type;
-  filter.begin(pin, filterWeight, 10);
-}
-
-void AnalogChannel::load() {
-  ChannelConfig config;
-  EEPROM.get(startAddress, config);
-
-  if (config.pin != pin) return;
-
-  lowEnd = config.lowEnd;
-  highEnd = config.highEnd;
-  trim = config.trim;
-  range = config.range;
-  invert = config.invert;
-}
-
-void AnalogChannel::save() {
-  ChannelConfig config;
-  config.pin = pin;
-  config.lowEnd = lowEnd;
-  config.highEnd = highEnd;
-  config.trim = trim;
-  config.range = range;
-  config.invert = invert;
-
-  EEPROM.put(startAddress, config);
-}
-
-int AnalogChannel::update() {
-  int val = filter.update() >> 2;
-  val = constrain(val, lowEnd, highEnd);
-
-  if (type == THROTTLE) {
-    val = map(val, lowEnd, highEnd, 0, 2*range);
-  } else {
-    val = map(val, lowEnd, highEnd, 90 - range, 90 + range);
-  }
-
-  val += trim;
-  val = constrain(val, 0, 180);
-
-  if (invert) val = 180 - val;
-  output = val;
+  int8_t output = map(val / 50, 0, 1023, LOW_END_LIMIT, HIGH_END_LIMIT);
 
   return output;
 }
 
-byte AnalogChannel::read() {
+AnalogChannel::AnalogChannel() {}
+
+void AnalogChannel::begin(byte pin, float weight) {
+  this->pin = pin;
+  filter.begin(pin, weight, 10);
+}
+
+int8_t AnalogChannel::update() {
+  byte val = filter.update() >> 2;
+  val = constrain(val, lowEnd, highEnd);
+  output = map(val, lowEnd, highEnd, LOW_END_LIMIT, HIGH_END_LIMIT);
+
+  return output;
+}
+
+int8_t AnalogChannel::read() {
   return output;
 }
 
 void AnalogChannel::calibrate() {
   printfLCD(F("Move to low end"));
   while (1) {
-    int x = analogReadAvg(pin);
+    int8_t x = analogReadAvg(pin);
     printfLCD(x);
 
     if (getButtonState() != NONE) {
@@ -83,7 +45,7 @@ void AnalogChannel::calibrate() {
   }
   printfLCD(F("Move to high end"));
   while (1) {
-    int x = analogReadAvg(pin);
+    int8_t x = analogReadAvg(pin);
     printfLCD(x);
     
     if (getButtonState() != NONE) {
