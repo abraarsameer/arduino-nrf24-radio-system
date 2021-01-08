@@ -15,13 +15,9 @@ void loop()
 
   for (byte i = 0; i < 4; i++)
   {
-    //txData.channel[i] = channel[i].update();
-
-    Serial.print(channel[i].update());
-    Serial.print(", ");
+    txData.channel[i] = channel[i].update();
   }
-  Serial.println();
-  updateMixes();
+  applyModelSettings();
 
   if (moduleConnected && throttleCheck())
   {

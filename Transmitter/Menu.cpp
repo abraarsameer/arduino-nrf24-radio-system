@@ -393,7 +393,7 @@ void invertMenuCallback() {
 
 void mixingMenuCallback() {
   byte currentScreen = currentPos / 2;
-  bool val = currentPos == 0 ? elevonMixEnabled : 0;
+  bool val = currentPos == 0 ? modelConfig.elevonMixEnabled : 0;
   printSlider(val, 11, 0);
 
   /*if (currentPos != currentMenuSize) {
@@ -435,7 +435,7 @@ void mixingMenuCallback() {
     case LEFT:
       if (optionSelected) {
         if(currentPos == 0) {
-          elevonMixEnabled = !elevonMixEnabled;
+          modelConfig.elevonMixEnabled = !modelConfig.elevonMixEnabled;
         }
       } else {
         switchMenu(mainMenu, len(mainMenu));
@@ -444,7 +444,7 @@ void mixingMenuCallback() {
     case RIGHT:
       if (optionSelected) {
         if (currentPos == 0) {
-          elevonMixEnabled = !elevonMixEnabled;
+          modelConfig.elevonMixEnabled = !modelConfig.elevonMixEnabled;
         }
       } else {
         optionSelected = true;

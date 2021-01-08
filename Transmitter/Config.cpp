@@ -1,9 +1,10 @@
 #include "Config.h"
 
-uint16_t OSFS::startOfEEPROM = 1;
-uint16_t OSFS::endOfEEPROM = 1024;
+uint16_t OSFS::startOfEEPROM = 0;
+uint16_t OSFS::endOfEEPROM = 1023;
 
 AnalogChannel channel[4];
+struct GlobalConfig config;
 
 void initChannels()
 {
@@ -31,12 +32,34 @@ void initChannels()
     }
 }
 
+void loadModel(byte i)
+{
+    config.currentModel = i;
+
+    char name[7] = "model";
+    char number[2];
+    itoa(config.currentModel, number, 10);
+
+    if (OSFS::getFileInfo(name, modelConfig) != OSFS::result::NO_ERROR)
+    {
+        //Default configuration - 
+        memset(modelConfig.trim, 0, 4);
+        memset(modelConfig.lowEndpoint, LOW_END_LIMIT, 4);
+        memset(modelConfig.highEndpoint, HIGH_END_LIMIT, 4);
+        memset(modelConfig.expo, 0, 4);
+        memset(modelConfig.secondaryRate, 100, 4);
+        modelConfig.elevonMixEnabled = false;
+    }
+}
+
 void saveConfig()
 {
     lcd.clear();
     lcd.home();
 
+    //Save Channel Configuration
     struct ChannelConfig channelConfig;
+    memset(channelConfig.foo, 0, 4);
 
     for (byte i = 0; i < 4; i++)
     {
@@ -45,6 +68,16 @@ void saveConfig()
     }
 
     OSFS::newFile("channel", channelConfig, true);
+
+    //Save Global Configuration
+    memset(config.foo, 0, 3);
+    OSFS::newFile("config", config);
+
+    //Save Model Configuration
+    char name[7] = "model";
+    char number[2];
+    itoa(config.currentModel, number, 10);
+    OSFS::newFile(name, modelConfig, true);
 
     lcd.print(F("Config saved"));
     delay(500);
@@ -74,16 +107,20 @@ void calibrateChannels()
     }
 }
 
-void OSFS::readNBytes(uint16_t address, unsigned int num, byte* output) {
-	for (uint16_t i = address; i < address + num; i++) {
-		*output = EEPROM.read(i);
-		output++;
-	}
+void OSFS::readNBytes(uint16_t address, unsigned int num, byte *output)
+{
+    for (uint16_t i = address; i < address + num; i++)
+    {
+        *output = EEPROM.read(i);
+        output++;
+    }
 }
 
-void OSFS::writeNBytes(uint16_t address, unsigned int num, const byte* input) {
-	for (uint16_t i = address; i < address + num; i++) {
-		EEPROM.update(i, *input);
-		input++;
-	}
+void OSFS::writeNBytes(uint16_t address, unsigned int num, const byte *input)
+{
+    for (uint16_t i = address; i < address + num; i++)
+    {
+        EEPROM.update(i, *input);
+        input++;
+    }
 }
