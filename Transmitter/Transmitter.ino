@@ -3,6 +3,7 @@
 #include "printf.h"
 #include "Init.h"
 #include "Mixing.h"
+#include "PPM.h"
 
 //#define SERIAL_DEBUG
 
@@ -21,7 +22,8 @@ void loop()
     txData.channel[i] = channel[i].update();
   }
   updateMixes();
-
+  updatePPM();
+/*
   if (moduleConnected && throttleCheck())
   {
     if (!receiverConnected)
@@ -60,7 +62,7 @@ void loop()
     ackedPackets = 0;
     lastMillis = millis();
   }
-
+*/
   if (throttleCheck())
     updateMenu();
 }

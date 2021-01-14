@@ -16,4 +16,6 @@ void initAll()
     initLCD();
     initRadio();
     initChannels();
+
+    ppmEncoder.begin(PPM_PIN, 6); //PPM output on out pin, 4 channels
 }
