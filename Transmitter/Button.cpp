@@ -35,7 +35,6 @@ byte Button::update() {
     }
   }
 
-
   return buttonState;
 }
 

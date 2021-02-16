@@ -8,18 +8,16 @@
 
 #define CHANNEL_STABLIZATION_DELAY 100
 
-struct ChannelConfig
-{
-    int8_t lowEnd[4];
-    int8_t highEnd[4];
-    byte foo[4]; //Reserved space
+struct ChannelConfig {
+  int8_t lowEnd[4];
+  int8_t highEnd[4];
+  byte foo[4]; // Reserved space
 };
 
-struct GlobalConfig
-{
-    byte currentModel;
-    byte foo[3]; //Some reserved space for future additions
-}; 
+struct GlobalConfig {
+  byte currentModel;
+  byte foo[3]; // Some reserved space for future additions
+};
 
 extern struct GlobalConfig config;
 

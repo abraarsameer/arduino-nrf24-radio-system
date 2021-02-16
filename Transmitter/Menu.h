@@ -3,8 +3,8 @@
 
 #include "Arduino.h"
 #include "Button.h"
-#include "LCD.h"
 #include "Config.h"
+#include "LCD.h"
 #include "Mixing.h"
 #include "Radio.h"
 
@@ -14,11 +14,11 @@
 #define trimLowerLimit -30
 #define trimUpperLimit 30
 
-#define f(x) (reinterpret_cast<const __FlashStringHelper*>(&x[0]))
-#define len(x) (sizeof(x)/sizeof(x[0]))
-typedef const __FlashStringHelper* fstring;
+#define f(x) (reinterpret_cast<const __FlashStringHelper *>(&x[0]))
+#define len(x) (sizeof(x) / sizeof(x[0]))
+typedef const __FlashStringHelper *fstring;
 typedef const char PROGMEM pchar;
-//Menus
+// Menus
 extern pchar Display[];
 extern pchar Trim[];
 extern pchar Range[];
@@ -40,7 +40,7 @@ extern fstring trimMenu[];
 extern fstring rangeMenu[];
 extern fstring invertMenu[];
 
-extern pchar elevon[] ;
+extern pchar elevon[];
 
 extern fstring mixingMenu[];
 
@@ -51,13 +51,13 @@ extern fstring saveMenu[];
 
 extern fstring radioStatsMenu[];
 
-extern fstring* subMenus[];
+extern fstring *subMenus[];
 extern byte subMenuSizes[];
 
 /*--------------------------------*/
 
-//Variables
-extern fstring* currentMenu;
+// Variables
+extern fstring *currentMenu;
 extern byte currentPos, lastPos;
 extern byte currentMenuSize;
 extern byte lastScreen;
@@ -68,7 +68,8 @@ extern AnalogChannel channel[4];
 
 extern byte packetSucccessRate;
 extern float transmitterVoltage, receiverVoltage;
-extern unsigned int sentPacketsDisplay, receivedPacketsDisplay, ackedPacketsDisplay;
+extern unsigned int sentPacketsDisplay, receivedPacketsDisplay,
+    ackedPacketsDisplay;
 //
 
 void updateMenu();

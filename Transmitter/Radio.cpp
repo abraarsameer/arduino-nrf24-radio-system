@@ -8,21 +8,17 @@ bool moduleConnected, receiverConnected;
 ChannelData txData;
 TelemetryData rxData;
 
-void initRadio() 
-{
-  //Radio initialization code
+void initRadio() {
+  // Radio initialization code
   radio.begin();
   moduleConnected = radio.isChipConnected();
-  if (!moduleConnected)
-  {
+  if (!moduleConnected) {
     printfLCD(F("NRF24 not found"));
     delay(1000);
-  }
-  else
-  {
+  } else {
     radio.setDataRate(RF24_250KBPS);
     radio.enableDynamicPayloads();
-    radio.enableAckPayload(); //Enable payload with Ack bit
+    radio.enableAckPayload(); // Enable payload with Ack bit
     radio.setRetries(2, 0);
     radio.setAddressWidth(sizeof(address) - 1);
     radio.openWritingPipe(address);
@@ -30,15 +26,13 @@ void initRadio()
   }
 }
 
-bool beginCommunications()
-{
+bool beginCommunications() {
   radio.setRetries(2, 15);
   txData.isFailsafeState = true;
 
   txData.channel[0] = 0;
 
-  if (radio.write(&txData, sizeof(txData)))
-  {
+  if (radio.write(&txData, sizeof(txData))) {
     txData.isFailsafeState = false;
     radio.setRetries(2, 0);
 

@@ -7,29 +7,22 @@ void initLCD() {
   lcd.begin();
 
   byte rightArrowChar[] = {B10000, B11000, B11100, B11110,
-                           B11110, B11100, B11000, B10000
-                          };
+                           B11110, B11100, B11000, B10000};
 
   byte leftArrowChar[] = {B00001, B00011, B00111, B01111,
-                          B01111, B00111, B00011, B00001
-                         };
+                          B01111, B00111, B00011, B00001};
 
   byte sliderChar[] = {B01110, B10001, B10101, B10101,
-                       B10101, B10101, B10001, B01110
-                      };
+                       B10101, B10101, B10001, B01110};
 
   byte antennaChar[] = {B00000, B11111, B10001, B01010,
-                        B00100, B00100, B00100, B00100
-                       };
+                        B00100, B00100, B00100, B00100};
 
   byte txLowBattChar[] = {B01110, B10001, B11111, B10101,
-                          B10101, B10101, B10001, B11111
-                         };
+                          B10101, B10101, B10001, B11111};
 
   byte rxLowBattChar[] = {B01110, B10001, B11111, B11011,
-                          B11101, B11011, B10001, B11111
-                         };
-
+                          B11101, B11011, B10001, B11111};
 
   lcd.createChar(rightArrow, rightArrowChar);
   lcd.createChar(leftArrow, leftArrowChar);
@@ -46,9 +39,9 @@ void printFloat(float val) {
 }
 
 void printInt(int val, size_t len) {
-  char buff[len+1];
+  char buff[len + 1];
   char spaces[4] = "   ";
-  
+
   itoa(val, buff, 10);
   strncat(buff, spaces, len - strlen(buff));
   lcd.print(buff);
@@ -76,13 +69,13 @@ void printfLCD(int x) {
   }
 }
 
-void printfLCD(const __FlashStringHelper* c) {
+void printfLCD(const __FlashStringHelper *c) {
   lcd.clear();
   lcd.home();
   lcd.print(c);
 }
 
-void printfLCD(const __FlashStringHelper* c1, const __FlashStringHelper* c2) {
+void printfLCD(const __FlashStringHelper *c1, const __FlashStringHelper *c2) {
   lcd.clear();
   lcd.home();
   lcd.print(c1);

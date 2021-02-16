@@ -8,8 +8,10 @@ pchar Mixing[] = "Mixing";
 pchar Save[] = "Configuration";
 pchar RadioStats[] = "Radio Stats";
 
-fstring mainMenu[] = {f(Display), f(Trim), f(Range), f(Invert), f(Mixing), f(Save), f(RadioStats)};
-fstring backgroundMenu[] = {f(Display)}; //Dummy, only serves to provide an address for identification
+fstring mainMenu[] = {f(Display), f(Trim), f(Range),     f(Invert),
+                      f(Mixing),  f(Save), f(RadioStats)};
+fstring backgroundMenu[] = {
+    f(Display)}; // Dummy, only serves to provide an address for identification
 
 pchar Ch1[] = "Ch 1";
 pchar Ch2[] = "Ch 2";
@@ -23,7 +25,7 @@ fstring invertMenu[] = {f(Ch1), f(Ch2), f(Ch3), f(Ch4)};
 
 pchar elevon[] = "Elevon";
 
-fstring mixingMenu[] =  {f(elevon)};
+fstring mixingMenu[] = {f(elevon)};
 
 pchar saveMsg[] = "Save";
 pchar calibrateMsg[] = "Calibrate";
@@ -32,13 +34,14 @@ fstring saveMenu[] = {f(saveMsg), f(calibrateMsg), f(clearEEPROMMsg)};
 
 fstring radioStatsMenu[] = {f(Display)};
 
-fstring* subMenus[] = {displayMenu, trimMenu, rangeMenu, invertMenu, mixingMenu, saveMenu, radioStatsMenu};
+fstring *subMenus[] = {displayMenu, trimMenu, rangeMenu,     invertMenu,
+                       mixingMenu,  saveMenu, radioStatsMenu};
 byte subMenuSizes[] = {4, 4, 4, 4, 1, 3, 0};
 
 /*--------------------------------*/
 
-//Variables
-fstring* currentMenu = backgroundMenu;
+// Variables
+fstring *currentMenu = backgroundMenu;
 byte currentPos, lastPos = 255;
 byte currentMenuSize;
 byte lastScreen = 255;
@@ -49,7 +52,7 @@ byte packetSucccessRate;
 float transmitterVoltage, receiverVoltage;
 unsigned int sentPacketsDisplay, receivedPacketsDisplay, ackedPacketsDisplay;
 
-void switchMenu(fstring* menu, byte size) {
+void switchMenu(fstring *menu, byte size) {
   currentMenu = menu;
   currentMenuSize = size;
   lastScreen = 255;
@@ -86,8 +89,7 @@ int8_t decrement(int8_t val, int8_t low, int8_t high) {
   return val;
 }
 
-
-//Callback Functions
+// Callback Functions
 
 void backgroundMenuCallback() {
   byte buttonState = getButtonState();
@@ -101,21 +103,22 @@ void backgroundMenuCallback() {
 void mainMenuCallback() {
   byte buttonstate = getButtonState();
 
-  if (buttonstate == NONE) return;
+  if (buttonstate == NONE)
+    return;
 
   switch (buttonstate) {
-    case UP:
-      stepBackward();
-      break;
-    case DOWN:
-      stepForward();
-      break;
-    case LEFT:
-      switchMenu(backgroundMenu, 0);
-      break;
-    case RIGHT:
-      switchMenu(subMenus[currentPos], subMenuSizes[currentPos]);
-      break;
+  case UP:
+    stepBackward();
+    break;
+  case DOWN:
+    stepForward();
+    break;
+  case LEFT:
+    switchMenu(backgroundMenu, 0);
+    break;
+  case RIGHT:
+    switchMenu(subMenus[currentPos], subMenuSizes[currentPos]);
+    break;
   }
 }
 
@@ -177,9 +180,10 @@ void trimMenuCallback() {
 
     if (optionSelected) {
       if (buttonstate == LEFT_HOLD) {
-        channel[currentPos].trim = decrement(channel[currentPos].trim, trimLowerLimit, trimUpperLimit);
-      } else if (buttonstate == RIGHT_HOLD) {
-        channel[currentPos].trim = increment(channel[currentPos].trim, trimLowerLimit, trimUpperLimit);
+        channel[currentPos].trim = decrement(channel[currentPos].trim,
+  trimLowerLimit, trimUpperLimit); } else if (buttonstate == RIGHT_HOLD) {
+        channel[currentPos].trim = increment(channel[currentPos].trim,
+  trimLowerLimit, trimUpperLimit);
       }
     }
 
@@ -244,16 +248,14 @@ void trimMenuCallback() {
       break;
     case LEFT:
       if (optionSelected) {
-        channel[currentPos].trim = decrement(channel[currentPos].trim, trimLowerLimit, trimUpperLimit);
-      } else {
-        switchMenu(mainMenu, len(mainMenu));
+        channel[currentPos].trim = decrement(channel[currentPos].trim,
+  trimLowerLimit, trimUpperLimit); } else { switchMenu(mainMenu, len(mainMenu));
       }
       break;
     case RIGHT:
       if (optionSelected) {
-        channel[currentPos].trim = increment(channel[currentPos].trim, trimLowerLimit, trimUpperLimit);
-      } else {
-        optionSelected = true;
+        channel[currentPos].trim = increment(channel[currentPos].trim,
+  trimLowerLimit, trimUpperLimit); } else { optionSelected = true;
       }
       break;
   }*/
@@ -415,68 +417,70 @@ void mixingMenuCallback() {
   }
 
   byte buttonstate = getButtonState();
-  if (buttonstate == NONE) return;
+  if (buttonstate == NONE)
+    return;
 
   switch (buttonstate) {
-    case UP:
-      if (optionSelected) {
-        optionSelected = false;
-      } else {
-        stepBackward();
+  case UP:
+    if (optionSelected) {
+      optionSelected = false;
+    } else {
+      stepBackward();
+    }
+    break;
+  case DOWN:
+    if (optionSelected) {
+      optionSelected = false;
+    } else {
+      stepForward();
+    }
+    break;
+  case LEFT:
+    if (optionSelected) {
+      if (currentPos == 0) {
+        modelConfig.elevonMixEnabled = !modelConfig.elevonMixEnabled;
       }
-      break;
-    case DOWN:
-      if (optionSelected) {
-        optionSelected = false;
-      } else {
-        stepForward();
+    } else {
+      switchMenu(mainMenu, len(mainMenu));
+    }
+    break;
+  case RIGHT:
+    if (optionSelected) {
+      if (currentPos == 0) {
+        modelConfig.elevonMixEnabled = !modelConfig.elevonMixEnabled;
       }
-      break;
-    case LEFT:
-      if (optionSelected) {
-        if(currentPos == 0) {
-          modelConfig.elevonMixEnabled = !modelConfig.elevonMixEnabled;
-        }
-      } else {
-        switchMenu(mainMenu, len(mainMenu));
-      }
-      break;
-    case RIGHT:
-      if (optionSelected) {
-        if (currentPos == 0) {
-          modelConfig.elevonMixEnabled = !modelConfig.elevonMixEnabled;
-        }
-      } else {
-        optionSelected = true;
-      }
-      break;
+    } else {
+      optionSelected = true;
+    }
+    break;
   }
 }
 
 void saveMenuCallback() {
   byte buttonstate = getButtonState();
-  if (buttonstate == NONE) return;
+  if (buttonstate == NONE)
+    return;
 
   switch (buttonstate) {
-    case UP:
-      stepBackward();
-      break;
-    case DOWN:
-      stepForward();
-      break;
-    case LEFT:
-      switchMenu(mainMenu, len(mainMenu));
-      break;
-    case RIGHT:
-      if (currentPos == 0) {
-        saveConfig();
-      } else if (currentPos == 1) {
-        calibrateChannels();
-      } else if (currentPos == 2) {
-        clearEEPROM();
-      }
-      switchMenu(mainMenu, len(mainMenu));
-      break;
+  case UP:
+    stepBackward();
+    break;
+  case DOWN:
+    stepForward();
+    break;
+  case LEFT:
+    switchMenu(mainMenu, len(mainMenu));
+    break;
+  case RIGHT:
+    if (currentPos == 0) {
+      saveConfig();
+    } else if (currentPos == 1) {
+      calibrateChannels();
+    } else if (currentPos == 2) {
+      clearEEPROM();
+    }
+    switchMenu(mainMenu, len(mainMenu));
+    break;
   }
 }
 
@@ -508,14 +512,13 @@ void updateEntries() {
   if (lastPos != currentPos) {
     lastPos = currentPos;
     lcd.setCursor(0, (currentPos + 2) % 2);
-    lcd.write(rightArrow); 
+    lcd.write(rightArrow);
     lcd.setCursor(0, (currentPos + 1) % 2);
     lcd.print(" ");
   }
 }
 
-
-//Display Functions
+// Display Functions
 
 void displayBackground() {
   if (!backgroundVisible) {
@@ -565,7 +568,7 @@ void displayRadioStats() {
     radioStatsMenuVisible = true;
     lcd.clear();
   }
-  if(millis() - lastMillisUpdate > 1000) {
+  if (millis() - lastMillisUpdate > 1000) {
     lastMillisUpdate = millis();
     lcd.setCursor(0, 0);
     lcd.print("S ");

@@ -23,7 +23,7 @@ void printInt(int val, size_t len);
 void printSlider(bool val, byte row, byte col);
 
 void printfLCD(int x);
-void printfLCD(const __FlashStringHelper* c);
-void printfLCD(const __FlashStringHelper* c1, const __FlashStringHelper* c2);
+void printfLCD(const __FlashStringHelper *c);
+void printfLCD(const __FlashStringHelper *c1, const __FlashStringHelper *c2);
 
 #endif

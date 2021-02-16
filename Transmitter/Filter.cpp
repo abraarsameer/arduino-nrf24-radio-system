@@ -20,9 +20,7 @@ void Filter::begin(byte Pin, float Weight, byte SampleTime) {
   data = 0.0;
 }
 
-void Filter::setWeight(float Weight) {
-  weight = Weight;
-}
+void Filter::setWeight(float Weight) { weight = Weight; }
 
 unsigned int Filter::update() {
 

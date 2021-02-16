@@ -1,9 +1,9 @@
 #ifndef INIT_H
 #define INIT_H
 
-#include "Radio.h"
 #include "Button.h"
 #include "Config.h"
+#include "Radio.h"
 
 #define SERIAL_DEBUG
 

@@ -27,9 +27,7 @@ int8_t AnalogChannel::update() {
   return output;
 }
 
-int8_t AnalogChannel::read() {
-  return output;
-}
+int8_t AnalogChannel::read() { return output; }
 
 void AnalogChannel::calibrate() {
   printfLCD(F("Move to low end"));
@@ -46,7 +44,7 @@ void AnalogChannel::calibrate() {
   while (1) {
     int8_t x = analogReadAvg(pin);
     printfLCD(x);
-    
+
     if (getButtonState() != NONE) {
       highEnd = x;
       break;
