@@ -1,0 +1,7 @@
+{
+    "board": "arduino:avr:uno",
+    "sketch": "Transmitter.ino",
+    "programmer": "USBasp",
+    "output": "./build",
+    "port": "/dev/ttyUSB0"
+}

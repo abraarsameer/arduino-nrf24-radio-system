@@ -1,0 +1,8 @@
+{
+    "programmer": "USBasp",
+    "board": "arduino:avr:pro",
+    "sketch": "Receiver.ino",
+    "output": "./build",
+    "port": "/dev/ttyACM1",
+    "configuration": "cpu=16MHzatmega168"
+}
