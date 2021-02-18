@@ -1,5 +1,16 @@
 #include "AnalogChannel.h"
 
+static inline byte expofunc(byte val, byte k) {
+  if (k == 0) {
+    return val;
+  } else {
+    int x = val - 127;
+    int y = (k * x * x * x / (127 * 127) + x * (100 - k)) / 100;
+    y = constrain(y + 127, 0, 255);
+    return (byte)y;
+  }
+}
+
 byte analogReadAvg(byte pin) {
 
   unsigned int val = 0;
@@ -33,6 +44,7 @@ void AnalogChannel::load() {
   trim = config.trim;
   range = config.range;
   invert = config.invert;
+  expo = config.expo;
 }
 
 void AnalogChannel::save() {
@@ -43,6 +55,7 @@ void AnalogChannel::save() {
   config.trim = trim;
   config.range = range;
   config.invert = invert;
+  config.expo = expo;
 
   EEPROM.put(startAddress, config);
 }
@@ -54,7 +67,9 @@ int AnalogChannel::update() {
   if (type == THROTTLE) {
     val = map(val, lowEnd, highEnd, 0, 2*range);
   } else {
-    val = map(val, lowEnd, highEnd, 90 - range, 90 + range);
+    val = map(val, lowEnd, highEnd, 0, 255);
+    val = expofunc(val, expo);
+    val = map(val, 0, 255, 90 - range, 90 + range);
   }
 
   val += trim;
