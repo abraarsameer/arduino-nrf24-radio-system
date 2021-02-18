@@ -3,12 +3,13 @@
 pchar Display[] = "Display";
 pchar Trim[] = "Trim";
 pchar Range[] = "Range";
+pchar Expo[] = "Expo";
 pchar Invert[] = "Invert";
 pchar Mixing[] = "Mixing";
 pchar Save[] = "Configuration";
 pchar RadioStats[] = "Radio Stats";
 
-fstring mainMenu[] = {f(Display), f(Trim), f(Range), f(Invert), f(Mixing), f(Save), f(RadioStats)};
+fstring mainMenu[] = {f(Display), f(Trim), f(Range), f(Expo), f(Invert), f(Mixing), f(Save), f(RadioStats)};
 fstring backgroundMenu[] = {f(Display)}; //Dummy, only serves to provide an address for identification
 
 pchar Ch1[] = "Ch 1";
@@ -19,6 +20,7 @@ pchar Ch4[] = "Ch 4";
 fstring displayMenu[] = {f(Ch1), f(Ch2), f(Ch3), f(Ch4)};
 fstring trimMenu[] = {f(Ch1), f(Ch2), f(Ch3), f(Ch4)};
 fstring rangeMenu[] = {f(Ch1), f(Ch2), f(Ch3), f(Ch4)};
+fstring expoMenu[] = {f(Ch1), f(Ch2), f(Ch3), f(Ch4)};
 fstring invertMenu[] = {f(Ch1), f(Ch2), f(Ch3), f(Ch4)};
 
 pchar elevon[] = "Elevon";
@@ -32,8 +34,8 @@ fstring saveMenu[] = {f(saveMsg), f(calibrateMsg), f(clearEEPROMMsg)};
 
 fstring radioStatsMenu[] = {f(Display)};
 
-fstring* subMenus[] = {displayMenu, trimMenu, rangeMenu, invertMenu, mixingMenu, saveMenu, radioStatsMenu};
-byte subMenuSizes[] = {4, 4, 4, 4, 1, 3, 0};
+fstring* subMenus[] = {displayMenu, trimMenu, rangeMenu, expoMenu, invertMenu, mixingMenu, saveMenu, radioStatsMenu};
+byte subMenuSizes[] = {4, 4, 4, 4, 4, 1, 3, 0};
 
 /*--------------------------------*/
 
@@ -333,6 +335,81 @@ void rangeMenuCallback() {
   }
 }
 
+
+void expoMenuCallback() {
+  byte buttonstate = getButtonState();
+
+  if (millis() - lastMillisUpdate > lcdUpdateInterval) {
+    lastMillisUpdate = millis();
+
+    if (optionSelected) {
+      if (buttonstate == LEFT_HOLD) {
+        channel[currentPos].expo = decrement(channel[currentPos].expo, 0, 99); //Range 0-99
+      } else if (buttonstate == RIGHT_HOLD) {
+        channel[currentPos].expo = increment(channel[currentPos].expo, 0, 99);
+      }
+    }
+
+    byte currentScreen = currentPos / 2;
+    int8_t val = channel[currentScreen * 2].expo;
+
+    lcd.setCursor(11, 0);
+    printInt(abs(val), 2);
+
+    if (currentPos != currentMenuSize) {
+      lcd.setCursor(11, 1);
+      val = channel[currentScreen * 2 + 1].expo;
+      printInt(abs(val), 2);
+    }
+
+    byte row = (currentPos + 2) % 2;
+    if (optionSelected) {
+      lcd.setCursor(10, row);
+      lcd.write(leftArrow);
+      lcd.setCursor(13, row);
+      lcd.write(rightArrow);
+    } else {
+      lcd.setCursor(10, row);
+      lcd.print(" ");
+      lcd.setCursor(13, row);
+      lcd.print(" ");
+    }
+  }
+
+  if (buttonstate == NONE) return;
+
+  switch (buttonstate) {
+    case UP:
+      if (optionSelected) {
+        optionSelected = false;
+      } else {
+        stepBackward();
+      }
+      break;
+    case DOWN:
+      if (optionSelected) {
+        optionSelected = false;
+      } else {
+        stepForward();
+      }
+      break;
+    case LEFT:
+      if (optionSelected) {
+        channel[currentPos].expo = decrement(channel[currentPos].expo, 0, 99);
+      } else {
+        switchMenu(mainMenu, len(mainMenu));
+      }
+      break;
+    case RIGHT:
+      if (optionSelected) {
+        channel[currentPos].expo = increment(channel[currentPos].expo, 0, 99);
+      } else {
+        optionSelected = true;
+      }
+      break;
+  }
+}
+
 void invertMenuCallback() {
   byte currentScreen = currentPos / 2;
   bool val = channel[currentScreen * 2].invert;
@@ -598,6 +675,8 @@ void updateMenu() {
     trimMenuCallback();
   } else if (currentMenu == rangeMenu) {
     rangeMenuCallback();
+  } else if (currentMenu == expoMenu) {
+    expoMenuCallback();
   } else if (currentMenu == invertMenu) {
     invertMenuCallback();
   } else if (currentMenu == mixingMenu) {

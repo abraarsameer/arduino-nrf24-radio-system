@@ -16,7 +16,8 @@
 typedef struct {
   byte pin;
   byte lowEnd, highEnd;
-  byte trim, range;
+  int8_t trim;
+  byte range, expo;
   bool invert : 1;
 } ChannelConfig;
 
@@ -39,6 +40,7 @@ class AnalogChannel {
     void calibrate();
     byte range = 90;
     int8_t trim = 0;
+    byte expo = 0;
     bool invert = false;
 };
 

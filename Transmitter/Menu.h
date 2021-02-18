@@ -22,6 +22,7 @@ typedef const char PROGMEM pchar;
 extern pchar Display[];
 extern pchar Trim[];
 extern pchar Range[];
+extern pchar Expo[];
 extern pchar Invert[];
 extern pchar Mixing[];
 extern pchar Save[];
@@ -38,6 +39,7 @@ extern pchar Ch4[];
 extern fstring displayMenu[];
 extern fstring trimMenu[];
 extern fstring rangeMenu[];
+extern fstring expoMenu[];
 extern fstring invertMenu[];
 
 extern pchar elevon[] ;
