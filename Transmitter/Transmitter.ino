@@ -23,7 +23,7 @@ void loop()
   }
   updateMixes();
   updatePPM();
-/*
+
   if (moduleConnected && throttleCheck())
   {
     if (!receiverConnected)
@@ -62,7 +62,7 @@ void loop()
     ackedPackets = 0;
     lastMillis = millis();
   }
-*/
+
   if (throttleCheck())
     updateMenu();
 }
