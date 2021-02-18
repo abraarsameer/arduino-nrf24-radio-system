@@ -4,9 +4,15 @@ uint16_t OSFS::startOfEEPROM = 0;
 uint16_t OSFS::endOfEEPROM = 1023;
 
 AnalogChannel channel[4];
-struct GlobalConfig config;
+byte currentModel;
 
-void initChannels() {
+void initConfig() {
+
+  // Config initialization
+  struct Config config;
+  EEPROM.get(CONFIG_ADDR, config);
+  loadModel(config.currentModel);
+
   // Channel initialization
   channel[0].begin(A0, 0.2);
   channel[1].begin(A1, 0.2);
@@ -14,7 +20,7 @@ void initChannels() {
   channel[3].begin(A3, 0.2);
 
   struct ChannelConfig channelConfig;
-  OSFS::getFile("channel", channelConfig);
+  EEPROM.get(CHANNEL_CONFIG_ADDR, channelConfig);
 
   for (byte i = 0; i < 4; i++) {
     channel[i].lowEnd = channelConfig.lowEnd[i];
@@ -30,19 +36,17 @@ void initChannels() {
 }
 
 void loadModel(byte i) {
-  config.currentModel = i;
+  currentModel = i;
+  EEPROM.get(MODEL_CONFIG_ADDR(i), modelConfig)
 
-  char name[7] = "model";
-  char number[2];
-  itoa(config.currentModel, number, 10);
+  if (!modelConfig.isSaved)) {
+    // Default configuration 
+    memset(&modelConfig.trim, 0, 4);
+    memset(&modelConfig.lowEndpoint, LOW_END_LIMIT, 4);
+    memset(&modelConfig.highEndpoint, HIGH_END_LIMIT, 4);
+    memset(&modelConfig.expo, 0, 4);
+    memset(&modelConfig.secondaryRate, 100, 4);
 
-  if (OSFS::getFileInfo(name, modelConfig) != OSFS::result::NO_ERROR) {
-    // Default configuration -
-    memset(modelConfig.trim, 0, 4);
-    memset(modelConfig.lowEndpoint, LOW_END_LIMIT, 4);
-    memset(modelConfig.highEndpoint, HIGH_END_LIMIT, 4);
-    memset(modelConfig.expo, 0, 4);
-    memset(modelConfig.secondaryRate, 100, 4);
     modelConfig.elevonMixEnabled = false;
   }
 }
@@ -64,7 +68,7 @@ void saveConfig() {
 
   // Save Global Configuration
   memset(config.foo, 0, 3);
-  OSFS::newFile("config", config);
+  OSFS::newFile("config", config, true);
 
   // Save Model Configuration
   char name[7] = "model";

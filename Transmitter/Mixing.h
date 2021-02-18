@@ -13,7 +13,9 @@ struct ModelConfig {
   byte expo[4];
   byte secondaryRate[4];
 
-  bool elevonMixEnabled;
+  bool invert[4];
+  bool elevonMixEnabled : 1;
+  bool isSaved : 1;
 };
 
 extern struct ModelConfig modelConfig;
