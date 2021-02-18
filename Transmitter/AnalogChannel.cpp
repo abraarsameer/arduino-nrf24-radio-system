@@ -4,8 +4,8 @@ static inline byte expofunc(byte val, byte k) {
   if (k == 0) {
     return val;
   } else {
-    int x = val - 127;
-    int y = (k * x * x * x / (127 * 127) + x * (100 - k)) / 100;
+    long x = val - 127;
+    long y = (k * x * x * x / (127 * 127) + x * (100 - k)) / 100;
     y = constrain(y + 127, 0, 255);
     return (byte)y;
   }
