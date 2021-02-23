@@ -12,13 +12,13 @@ static inline void applyMixes() {
   }
 }
 
-static inline int8_t expo(int8_t x, byte k) {
-  int8_t y = (k == 0) ? x
+static inline int8_t expo(long x, byte k) {
+  long y = (k == 0) ? x
                       : (k * x * x * x / (HIGH_END_LIMIT * HIGH_END_LIMIT) +
                          x * (100 - k)) /
                             100;
   y = constrain(y, LOW_END_LIMIT, HIGH_END_LIMIT);
-  return y;
+  return(int8_t) y;
 }
 
 void applyModelSettings() {
